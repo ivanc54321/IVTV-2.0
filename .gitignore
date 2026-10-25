@@ -27,4 +27,9 @@ restore_points/*
 !restore_points/.gitkeep
 scratch/
 
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
 

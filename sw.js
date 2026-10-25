@@ -3,7 +3,7 @@
    Enables 100% Offline Capability, Local Shell Caching & Instant Standalone Launch
    ========================================================================== */
 
-const CACHE_NAME = 'ivtv-cache-v42';
+const CACHE_NAME = 'ivtv-cache-v44';
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
@@ -16,6 +16,7 @@ const PRECACHE_ASSETS = [
   "./css/epg.css",
   "./js/hls.min.js",
   "./js/data.js",
+  "./js/auth.js",
   "./js/us-channels.js",
   "./js/favorites.js",
   "./js/epg.js",
@@ -180,6 +181,12 @@ self.addEventListener('fetch', (event) => {
         return caches.match('./index.html') || caches.match('/');
       })
     );
+    return;
+  }
+
+  // Auth and User Account API requests: Always Network Direct
+  if (url.pathname.startsWith('/api/auth') || url.pathname.startsWith('/api/user')) {
+    event.respondWith(fetch(req));
     return;
   }
 

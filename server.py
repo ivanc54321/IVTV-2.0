@@ -10,6 +10,7 @@ import time
 import datetime
 import threading
 import hashlib
+import user_db
 
 # Handle headless/pythonw execution on Windows where sys.stdout and sys.stderr are None
 if sys.stdout is None or sys.stderr is None:
@@ -1810,13 +1811,39 @@ def proxy_embed(handler, target_url):
             pass
 
 class IVTVRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def send_json(self, data, status=200):
+        try:
+            self.send_response(status)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
+    def get_auth_token(self):
+        auth_header = self.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            return auth_header[7:].strip()
+        parsed = urllib.parse.urlparse(self.path)
+        params = urllib.parse.parse_qs(parsed.query)
+        if 'token' in params:
+            return params['token'][0]
+        return None
+
+    def read_json_body(self):
+        content_length = int(self.headers.get('Content-Length', 0))
+        if content_length > 0:
+            body = self.rfile.read(content_length)
+            return json.loads(body.decode('utf-8'))
+        return {}
+
     def end_headers(self):
         buf = getattr(self, '_headers_buffer', [])
         has_cors = any(h.lower().startswith(b'access-control-allow-origin:') for h in buf)
         if not has_cors:
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         has_cache = any(h.lower().startswith(b'cache-control:') for h in buf)
         if not has_cache:
             self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
@@ -1860,10 +1887,7 @@ class IVTVRequestHandler(http.server.SimpleHTTPRequestHandler):
             
             result = get_clean_stream(channel_id, force_refresh=force, use_backup=use_backup)
             
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(result).encode('utf-8'))
+            self.send_json(result)
             return
 
         # API EPG Listings Endpoint: /api/epg
@@ -1878,6 +1902,47 @@ class IVTVRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(data).encode('utf-8'))
             return
+
+        # User Profile & Stored Data Endpoint: /api/user/profile
+        if parsed.path == '/api/user/profile':
+            token = self.get_auth_token()
+            user = user_db.get_user_by_token(token) if token else None
+            if not user:
+                self.send_json({"success": False, "error": "Unauthorized"}, 401)
+                return
+            favs = user_db.get_favorites(user["id"])
+            recent = user_db.get_recent(user["id"])
+            stats = user_db.get_stats(user["id"])
+            self.send_json({
+                "success": True,
+                "user": user,
+                "favorites": favs,
+                "recent": recent,
+                "stats": stats
+            })
+            return
+
+        # User Stored Favorites: /api/user/favorites
+        if parsed.path == '/api/user/favorites':
+            token = self.get_auth_token()
+            user = user_db.get_user_by_token(token) if token else None
+            if not user:
+                self.send_json({"success": False, "error": "Unauthorized"}, 401)
+                return
+            favs = user_db.get_favorites(user["id"])
+            self.send_json({"success": True, "favorites": favs})
+            return
+
+        # User Recent Channels: /api/user/recent
+        if parsed.path == '/api/user/recent':
+            token = self.get_auth_token()
+            user = user_db.get_user_by_token(token) if token else None
+            if not user:
+                self.send_json({"success": False, "error": "Unauthorized"}, 401)
+                return
+            recent = user_db.get_recent(user["id"])
+            self.send_json({"success": True, "recent": recent})
+            return
             
         return super().do_GET()
 
@@ -1886,11 +1951,8 @@ class IVTVRequestHandler(http.server.SimpleHTTPRequestHandler):
         
         # API Token Refresh Endpoint
         if parsed.path == '/api/refresh_token':
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length)
-            
             try:
-                data = json.loads(body.decode('utf-8')) if body else {}
+                data = self.read_json_body()
                 slug = data.get('channel', '')
                 current_token = data.get('current_token', '')
                 
@@ -1898,28 +1960,193 @@ class IVTVRequestHandler(http.server.SimpleHTTPRequestHandler):
                 new_token = get_valid_token_for_slug(slug, current_token=current_token, force_new=True)
                 
                 if new_token:
-                    resp_dict = {
+                    self.send_json({
                         "success": True,
                         "token": new_token,
                         "expires_in": 300,
                         "message": "Token refreshed successfully"
-                    }
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps(resp_dict).encode('utf-8'))
+                    })
                     return
                 else:
                     raise Exception("Could not refresh token for channel")
             except Exception as e:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
+                self.send_json({"success": False, "error": str(e)}, 500)
                 return
+
+        # ======================================================================
+        # USER AUTHENTICATION & CLOUD SYNC ENDPOINTS
+        # ======================================================================
+
+        # Register User: POST /api/auth/register
+        if parsed.path == '/api/auth/register':
+            try:
+                data = self.read_json_body()
+                username = data.get('username')
+                password = data.get('password')
+                display_name = data.get('displayName')
+                avatar = data.get('avatar', 'neon-star')
+                initial_favs = data.get('initialFavorites', [])
+                
+                user, token, favorites = user_db.register_user(
+                    username, password, display_name, avatar, initial_favs
+                )
+                self.send_json({
+                    "success": True,
+                    "user": user,
+                    "token": token,
+                    "favorites": favorites,
+                    "recent": []
+                })
+                return
+            except ValueError as ve:
+                self.send_json({"success": False, "error": str(ve)}, 400)
+                return
+            except Exception as e:
+                self.send_json({"success": False, "error": f"Registration failed: {e}"}, 500)
+                return
+
+        # Login User: POST /api/auth/login
+        if parsed.path == '/api/auth/login':
+            try:
+                data = self.read_json_body()
+                username = data.get('username')
+                password = data.get('password')
+                user, token, favorites, recent = user_db.login_user(username, password)
+                self.send_json({
+                    "success": True,
+                    "user": user,
+                    "token": token,
+                    "favorites": favorites,
+                    "recent": recent
+                })
+                return
+            except ValueError as ve:
+                self.send_json({"success": False, "error": str(ve)}, 401)
+                return
+            except Exception as e:
+                self.send_json({"success": False, "error": f"Login failed: {e}"}, 500)
+                return
+
+        # Logout User: POST /api/auth/logout
+        if parsed.path == '/api/auth/logout':
+            try:
+                data = self.read_json_body()
+                token = data.get('token') or self.get_auth_token()
+                if token:
+                    user_db.logout_user(token)
+                self.send_json({"success": True, "message": "Logged out successfully"})
+                return
+            except Exception as e:
+                self.send_json({"success": False, "error": str(e)}, 500)
+                return
+
+        # Update User Profile: POST /api/user/profile
+        if parsed.path == '/api/user/profile':
+            token = self.get_auth_token()
+            user = user_db.get_user_by_token(token) if token else None
+            if not user:
+                self.send_json({"success": False, "error": "Unauthorized"}, 401)
+                return
+            try:
+                data = self.read_json_body()
+                user_db.update_profile(
+                    user["id"],
+                    display_name=data.get('displayName'),
+                    avatar=data.get('avatar'),
+                    new_password=data.get('newPassword')
+                )
+                updated = user_db.get_user_by_token(token)
+                self.send_json({"success": True, "user": updated})
+                return
+            except ValueError as ve:
+                self.send_json({"success": False, "error": str(ve)}, 400)
+                return
+            except Exception as e:
+                self.send_json({"success": False, "error": str(e)}, 500)
+                return
+
+        # Save or Toggle Favorites: POST /api/user/favorites
+        if parsed.path == '/api/user/favorites':
+            token = self.get_auth_token()
+            user = user_db.get_user_by_token(token) if token else None
+            if not user:
+                self.send_json({"success": False, "error": "Unauthorized"}, 401)
+                return
+            try:
+                data = self.read_json_body()
+                if data.get('action') == 'toggle' and 'channelId' in data:
+                    added, new_favs = user_db.toggle_favorite(user["id"], data['channelId'])
+                    self.send_json({"success": True, "added": added, "favorites": new_favs})
+                    return
+                elif 'favorites' in data and isinstance(data['favorites'], list):
+                    new_favs = user_db.set_favorites(user["id"], data['favorites'])
+                    self.send_json({"success": True, "favorites": new_favs})
+                    return
+                else:
+                    self.send_json({"success": False, "error": "Invalid favorites payload"}, 400)
+                    return
+            except Exception as e:
+                self.send_json({"success": False, "error": str(e)}, 500)
+                return
+
+        # Sync Favorites (Merge local into account): POST /api/user/favorites/sync
+        if parsed.path == '/api/user/favorites/sync':
+            token = self.get_auth_token()
+            user = user_db.get_user_by_token(token) if token else None
+            if not user:
+                self.send_json({"success": False, "error": "Unauthorized"}, 401)
+                return
+            try:
+                data = self.read_json_body()
+                local_favs = data.get('localFavorites', [])
+                merged = user_db.sync_favorites(user["id"], local_favs)
+                self.send_json({"success": True, "favorites": merged})
+                return
+            except Exception as e:
+                self.send_json({"success": False, "error": str(e)}, 500)
+                return
+
+        # Save Recent Channel: POST /api/user/recent
+        if parsed.path == '/api/user/recent':
+            token = self.get_auth_token()
+            user = user_db.get_user_by_token(token) if token else None
+            if not user:
+                self.send_json({"success": False, "error": "Unauthorized"}, 401)
+                return
+            try:
+                data = self.read_json_body()
+                ch_id = data.get('channelId')
+                if ch_id:
+                    recent = user_db.add_recent(user["id"], ch_id)
+                    self.send_json({"success": True, "recent": recent})
+                    return
+                self.send_json({"success": False, "error": "Missing channelId"}, 400)
+                return
+            except Exception as e:
+                self.send_json({"success": False, "error": str(e)}, 500)
+                return
+
+        # Channel Watch Stats: POST /api/user/stats
+        if parsed.path == '/api/user/stats':
+            token = self.get_auth_token()
+            user = user_db.get_user_by_token(token) if token else None
+            if user:
+                try:
+                    data = self.read_json_body()
+                    user_db.track_stat(
+                        user["id"],
+                        data.get('channelId'),
+                        clicks=data.get('clicks', 0),
+                        seconds=data.get('seconds', 0)
+                    )
+                except Exception:
+                    pass
+            self.send_json({"success": True})
+            return
                 
         self.send_response(404)
         self.end_headers()
+
 
 class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True

@@ -3,13 +3,29 @@
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Components
+  // Initialize Components safely
+  if (window.ivtvAuth) {
+    try {
+      window.ivtvAuth.init();
+    } catch (e) {
+      console.warn('[App] Error initializing ivtvAuth:', e);
+    }
+  }
+
   if (window.ivtvPlayer) {
-    window.ivtvPlayer.init();
+    try {
+      window.ivtvPlayer.init();
+    } catch (e) {
+      console.warn('[App] Error initializing ivtvPlayer:', e);
+    }
   }
 
   if (window.UIControllerInstance) {
-    window.UIControllerInstance.init();
+    try {
+      window.UIControllerInstance.init();
+    } catch (e) {
+      console.error('[App] Error initializing UIControllerInstance:', e);
+    }
   }
 
   // Handle URL Query Params for auto-play or standalone pop-out window: /?play=channelId&popout=1
@@ -44,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // AUTO-VERSION CHECK & HARD CACHE PURGE (STANDALONE DESKTOP SYNC)
   // Ensures standalone app window always displays latest code without cache lag
   // ==========================================================================
-  const APP_BUILD_VER = 'v78';
+  const APP_BUILD_VER = 'v81';
   const lastKnownVer = localStorage.getItem('ivtv_client_build_ver');
 
   if (lastKnownVer !== APP_BUILD_VER) {
@@ -183,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   if ('serviceWorker' in navigator && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=50')
+      navigator.serviceWorker.register('sw.js?v=51')
         .then((reg) => {
           reg.update();
           console.log('[IVTV PWA] Service Worker registered successfully (scope: ' + reg.scope + ')');

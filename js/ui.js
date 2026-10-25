@@ -1874,12 +1874,26 @@ class UIController {
     if (brandLink) {
       brandLink.addEventListener('click', (e) => {
         e.preventDefault();
+        const searchInput = document.getElementById('nav-search-input');
+        if (searchInput) searchInput.value = '';
+        this.handleSearch('');
+        this.closeTVGuide();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.activeFilter = 'all';
         document.querySelectorAll('.nav-pill-btn, .nav-burger-item').forEach(b => b.classList.remove('active'));
         const homeBurgerItem = document.querySelector('.nav-burger-item[data-nav="home"]');
         if (homeBurgerItem) homeBurgerItem.classList.add('active');
         const burgerBtn = document.getElementById('nav-burger-btn');
         if (burgerBtn) burgerBtn.classList.add('active');
+        const navbarGlass = document.getElementById('navbar-glass');
+        if (navbarGlass && !navbarGlass.classList.contains('minimized')) {
+          navbarGlass.classList.add('minimized');
+          const navExpandBtn = document.getElementById('nav-expand-btn');
+          if (navExpandBtn) navExpandBtn.setAttribute('aria-expanded', 'false');
+          const burgerWrapper = document.getElementById('nav-burger-wrapper');
+          if (burgerWrapper) burgerWrapper.classList.remove('open');
+          if (burgerBtn) burgerBtn.setAttribute('aria-expanded', 'false');
+        }
       });
     }
 
@@ -1904,6 +1918,19 @@ class UIController {
           if (burgerBtn) burgerBtn.setAttribute('aria-expanded', 'false');
         }
       };
+
+      // Clicking anywhere on minimized navbar expands it
+      navbarGlass.addEventListener('click', (e) => {
+        if (navbarGlass.classList.contains('minimized')) {
+          e.preventDefault();
+          e.stopPropagation();
+          expandNavbar();
+          if (burgerWrapper) {
+            burgerWrapper.classList.add('open');
+            if (burgerBtn) burgerBtn.setAttribute('aria-expanded', 'true');
+          }
+        }
+      });
 
       if (navExpandBtn) {
         navExpandBtn.addEventListener('click', (e) => {
@@ -1954,6 +1981,10 @@ class UIController {
       burgerBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (navbarGlass && navbarGlass.classList.contains('minimized')) {
+          navbarGlass.classList.remove('minimized');
+          if (navExpandBtn) navExpandBtn.setAttribute('aria-expanded', 'true');
+        }
         const isOpen = burgerWrapper.classList.toggle('open');
         burgerBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       });
@@ -1979,8 +2010,12 @@ class UIController {
     // Nav Category Pills & Burger Navigation Items
     document.querySelectorAll('.nav-pill-btn, .nav-burger-item').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        const filter = btn.dataset.nav;
+        if (!filter) return; // Ignore non-nav buttons like account modal & download desktop app
+
         e.preventDefault();
-        // Close burger dropdown if clicked inside
+
+        // Close burger dropdown
         if (burgerWrapper) {
           burgerWrapper.classList.remove('open');
           if (burgerBtn) burgerBtn.setAttribute('aria-expanded', 'false');
@@ -1988,18 +2023,45 @@ class UIController {
 
         document.querySelectorAll('.nav-pill-btn, .nav-burger-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const filter = btn.dataset.nav;
 
         if (filter === 'home') {
+          // Clear any active search query and restore main showcase view
+          const searchInput = document.getElementById('nav-search-input');
+          if (searchInput) searchInput.value = '';
+          this.handleSearch('');
+
+          // Close any open modals
+          this.closeTVGuide();
+
+          // Scroll to top of homepage showcase smoothly
           window.scrollTo({ top: 0, behavior: 'smooth' });
+
+          this.activeFilter = 'all';
           if (burgerBtn) burgerBtn.classList.add('active');
           const homeBurger = document.querySelector('.nav-burger-item[data-nav="home"]');
           if (homeBurger) homeBurger.classList.add('active');
+
+          if (navbarGlass && !navbarGlass.classList.contains('minimized')) {
+            setTimeout(() => {
+              navbarGlass.classList.add('minimized');
+              if (navExpandBtn) navExpandBtn.setAttribute('aria-expanded', 'false');
+            }, 180);
+          }
           return;
         }
 
         // If not home, remove active highlight from burger button
         if (burgerBtn) burgerBtn.classList.remove('active');
+
+        // Minimize navbar if destination was picked from inside burger dropdown
+        if (btn.classList.contains('nav-burger-item')) {
+          if (navbarGlass && !navbarGlass.classList.contains('minimized')) {
+            setTimeout(() => {
+              navbarGlass.classList.add('minimized');
+              if (navExpandBtn) navExpandBtn.setAttribute('aria-expanded', 'false');
+            }, 250);
+          }
+        }
 
         if (filter === 'guide') {
           this.openTVGuide();

@@ -21,6 +21,35 @@ class FavoritesManager {
       } else {
         document.addEventListener('DOMContentLoaded', () => this.syncChannelViews());
       }
+
+      // Listen for user login / logout to sync cloud favorites
+      window.addEventListener('ivtv:auth-state-changed', (e) => {
+        const { loggedIn, favorites, recent, stats } = e.detail || {};
+        if (loggedIn) {
+          if (Array.isArray(favorites) && favorites.length > 0) {
+            this.favorites = [...favorites];
+          } else {
+            // First time login with empty server favorites -> sync existing local favorites up to cloud
+            this.syncWithServer();
+          }
+          if (Array.isArray(recent) && recent.length > 0) {
+            this.recent = [...recent];
+          }
+          if (stats && typeof stats === 'object') {
+            this.viewStats = { ...this.viewStats, ...stats };
+            this.syncChannelViews();
+          }
+          this.saveFavorites(false); // save locally without re-pushing to avoid echo
+          window.dispatchEvent(new CustomEvent('ivtv:favorites-changed', { detail: { favorites: this.favorites } }));
+          window.dispatchEvent(new CustomEvent('ivtv:recent-changed', { detail: { recent: this.recent } }));
+        } else {
+          // Logged out: reload guest favorites from localStorage
+          this.favorites = this.loadFavorites();
+          this.recent = this.loadRecent();
+          window.dispatchEvent(new CustomEvent('ivtv:favorites-changed', { detail: { favorites: this.favorites } }));
+          window.dispatchEvent(new CustomEvent('ivtv:recent-changed', { detail: { recent: this.recent } }));
+        }
+      });
     }
   }
 
@@ -40,12 +69,42 @@ class FavoritesManager {
     }
   }
 
-  saveFavorites() {
+  saveFavorites(pushToCloud = true) {
     try {
       localStorage.setItem(IVTV_STORAGE_KEYS.FAVORITES, JSON.stringify(this.favorites));
       window.dispatchEvent(new CustomEvent('ivtv:favorites-changed', { detail: { favorites: this.favorites } }));
+
+      // Asynchronously push to server if user is logged in
+      if (pushToCloud && window.ivtvAuth && window.ivtvAuth.isLoggedIn()) {
+        fetch('/api/user/favorites', {
+          method: 'POST',
+          headers: window.ivtvAuth.getHeaders(),
+          body: JSON.stringify({ favorites: this.favorites })
+        }).catch(err => console.warn('[Storage] Failed to sync favorites to cloud:', err));
+      }
     } catch (e) {
       console.warn('LocalStorage save error', e);
+    }
+  }
+
+  async syncWithServer() {
+    if (!window.ivtvAuth || !window.ivtvAuth.isLoggedIn()) return;
+    try {
+      const res = await fetch('/api/user/favorites/sync', {
+        method: 'POST',
+        headers: window.ivtvAuth.getHeaders(),
+        body: JSON.stringify({ localFavorites: this.favorites })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.favorites)) {
+          this.favorites = data.favorites;
+          localStorage.setItem(IVTV_STORAGE_KEYS.FAVORITES, JSON.stringify(this.favorites));
+          window.dispatchEvent(new CustomEvent('ivtv:favorites-changed', { detail: { favorites: this.favorites } }));
+        }
+      }
+    } catch (e) {
+      console.warn('[Storage] Sync with server error:', e);
     }
   }
 
@@ -63,7 +122,7 @@ class FavoritesManager {
       this.favorites.push(channelId);
       added = true;
     }
-    this.saveFavorites();
+    this.saveFavorites(true);
     return added;
   }
 
@@ -90,6 +149,14 @@ class FavoritesManager {
       localStorage.setItem(IVTV_STORAGE_KEYS.RECENT, JSON.stringify(this.recent));
       localStorage.setItem(IVTV_STORAGE_KEYS.LAST_CHANNEL, channelId);
       window.dispatchEvent(new CustomEvent('ivtv:recent-changed', { detail: { recent: this.recent } }));
+
+      if (window.ivtvAuth && window.ivtvAuth.isLoggedIn()) {
+        fetch('/api/user/recent', {
+          method: 'POST',
+          headers: window.ivtvAuth.getHeaders(),
+          body: JSON.stringify({ channelId })
+        }).catch(() => {});
+      }
     } catch (e) {
       console.warn('LocalStorage recent save error', e);
     }
@@ -171,6 +238,14 @@ class FavoritesManager {
     this.saveViewStats();
     this.syncChannelViews();
     window.dispatchEvent(new CustomEvent('ivtv:views-updated', { detail: { channelId } }));
+
+    if (window.ivtvAuth && window.ivtvAuth.isLoggedIn()) {
+      fetch('/api/user/stats', {
+        method: 'POST',
+        headers: window.ivtvAuth.getHeaders(),
+        body: JSON.stringify({ channelId, seconds })
+      }).catch(() => {});
+    }
   }
 }
 

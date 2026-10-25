@@ -23,7 +23,7 @@
   <!-- CSS Stylesheets (Zero External Dependencies) -->
   <link rel="stylesheet" href="css/variables.css?v=40">
   <link rel="stylesheet" href="css/fonts.css?v=40">
-  <link rel="stylesheet" href="css/main.css?v=65">
+  <link rel="stylesheet" href="css/main.css?v=66">
   <link rel="stylesheet" href="css/components.css?v=48">
   <link rel="stylesheet" href="css/player.css?v=61">
   <link rel="stylesheet" href="css/epg.css?v=61">
@@ -159,6 +159,13 @@
                 </div>
               </button>
               <div class="nav-burger-divider"></div>
+              <button class="nav-burger-item" id="nav-burger-account-btn" role="menuitem">
+                <span class="nav-burger-icon" style="color: var(--accent-neon, #00ff88);">👤</span>
+                <div class="nav-burger-text">
+                  <span class="nav-burger-label" id="burger-account-label">Account &amp; Cloud Sync</span>
+                  <span class="nav-burger-hint" id="burger-account-hint">Sign In / Stored Favorites</span>
+                </div>
+              </button>
               <button class="nav-burger-item" id="nav-install-app-btn" role="menuitem">
                 <span class="nav-burger-icon" style="color: var(--accent-neon, #00ff88);">💻</span>
                 <div class="nav-burger-text">
@@ -214,6 +221,17 @@
 
             <button class="action-icon-btn" id="vpn-info-btn" title="VPN / ISP Streaming Advisory" onclick="window.showToast('Note: If streams do not load, use a VPN connected to a UK or European server to bypass ISP restrictions.', 'info')">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+
+            <!-- User Account / Profile Button Pill -->
+            <button class="nav-account-btn" id="nav-account-btn" title="Sign In or Manage Account" aria-label="User Account">
+              <span class="account-avatar-mini" id="nav-account-avatar">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              <span class="account-name-label" id="nav-account-label">Sign In</span>
             </button>
           </div>
         </div>
@@ -1036,13 +1054,181 @@
     <span style="font-size: 0.72rem; opacity: 0.8; margin-left: 0.25rem;">(Click to restore)</span>
   </div>
 
+  <!-- ==========================================================================
+       USER ACCOUNTS & CLOUD-STORED FAVORITES MODAL
+       ========================================================================== -->
+  <div class="account-modal-overlay" id="account-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
+    <div class="account-modal-card">
+      <!-- Modal Header -->
+      <div class="account-modal-header">
+        <div class="account-modal-title-wrap">
+          <div class="account-modal-brand-badge" id="account-header-badge">★</div>
+          <div>
+            <h3 class="account-modal-title" id="account-modal-title">IVTV Account</h3>
+            <p class="account-modal-subtitle" id="account-modal-subtitle">Sync favorites &amp; watch history across all devices</p>
+          </div>
+        </div>
+        <button class="account-close-btn" id="account-modal-close-btn" title="Close Modal (Esc)" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- VIEW 1: AUTHENTICATION (SIGN IN & REGISTER) -->
+      <div id="account-auth-view">
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab-btn active" id="tab-btn-signin" role="tab" aria-selected="true">Sign In</button>
+          <button class="auth-tab-btn" id="tab-btn-register" role="tab" aria-selected="false">Create Account</button>
+        </div>
+
+        <div class="auth-error-box" id="auth-error-box">
+          <span style="font-size: 1rem;">⚠️</span>
+          <span id="auth-error-text">Error message here</span>
+        </div>
+
+        <!-- Sign In Form -->
+        <form class="auth-form-view" id="form-signin" onsubmit="return false;">
+          <div class="auth-field-group">
+            <label class="auth-label" for="signin-username">Username</label>
+            <div class="auth-input-wrapper">
+              <input type="text" id="signin-username" class="auth-input" placeholder="Enter your username" autocomplete="username" required>
+            </div>
+          </div>
+
+          <div class="auth-field-group">
+            <label class="auth-label" for="signin-password">Password</label>
+            <div class="auth-input-wrapper">
+              <input type="password" id="signin-password" class="auth-input" placeholder="Enter your password" autocomplete="current-password" required>
+              <button type="button" class="auth-input-icon" id="toggle-signin-password" title="Show/Hide Password">👁</button>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-submit-btn" id="btn-submit-signin">
+            <span>Sign In &amp; Load Favorites</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form class="auth-form-view" id="form-register" style="display: none;" onsubmit="return false;">
+          <div class="auth-field-group">
+            <label class="auth-label" for="register-displayname">Display Name (Optional)</label>
+            <div class="auth-input-wrapper">
+              <input type="text" id="register-displayname" class="auth-input" placeholder="e.g. Cinema Fan" autocomplete="name">
+            </div>
+          </div>
+
+          <div class="auth-field-group">
+            <label class="auth-label" for="register-username">Username</label>
+            <div class="auth-input-wrapper">
+              <input type="text" id="register-username" class="auth-input" placeholder="Choose a unique username" autocomplete="username" required>
+            </div>
+          </div>
+
+          <div class="auth-field-group">
+            <label class="auth-label" for="register-password">Password (min 4 characters)</label>
+            <div class="auth-input-wrapper">
+              <input type="password" id="register-password" class="auth-input" placeholder="Create a password" autocomplete="new-password" required>
+              <button type="button" class="auth-input-icon" id="toggle-register-password" title="Show/Hide Password">👁</button>
+            </div>
+          </div>
+
+          <div>
+            <span class="avatar-picker-label">Choose Your Cinema Avatar</span>
+            <div class="avatar-grid" id="avatar-grid"></div>
+          </div>
+
+          <label class="auth-checkbox-label">
+            <input type="checkbox" id="register-import-favs" class="auth-checkbox" checked>
+            <span>Import my existing favorites into this account</span>
+          </label>
+
+          <button type="submit" class="auth-submit-btn" id="btn-submit-register">
+            <span>Create Account &amp; Sync</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- VIEW 2: LOGGED-IN ACCOUNT DASHBOARD -->
+      <div id="account-dashboard-view" style="display: none;">
+        <!-- User Profile Card -->
+        <div class="account-profile-card">
+          <div class="profile-avatar-large" id="dash-avatar-badge">
+            <span id="dash-avatar-icon">★</span>
+            <span class="online-badge"></span>
+          </div>
+          <div class="profile-meta-info">
+            <h4 class="profile-display-name" id="dash-display-name">Username</h4>
+            <div class="profile-username" id="dash-username">@username</div>
+            <div class="profile-tier-badge">
+              <span>★</span>
+              <span>VIP Cinema Streamer</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cloud Sync Banner -->
+        <div class="cloud-sync-banner">
+          <div class="cloud-sync-left">
+            <span class="cloud-sync-icon">☁️</span>
+            <div>
+              <div class="cloud-sync-title">Cloud Storage Active</div>
+              <div class="cloud-sync-subtitle" id="dash-sync-status">All favorites &amp; watch history synced</div>
+            </div>
+          </div>
+          <button type="button" class="cloud-sync-btn" id="dash-force-sync-btn">Force Sync</button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="account-stats-grid">
+          <div class="account-stat-card">
+            <div class="account-stat-val" id="dash-favs-count">0</div>
+            <div class="account-stat-label">Favorites</div>
+          </div>
+          <div class="account-stat-card">
+            <div class="account-stat-val" id="dash-recent-count">0</div>
+            <div class="account-stat-label">Recent TV</div>
+          </div>
+          <div class="account-stat-card">
+            <div class="account-stat-val" id="dash-total-channels">70+</div>
+            <div class="account-stat-label">Available HD</div>
+          </div>
+        </div>
+
+        <!-- Stored Favorites Management Section -->
+        <div class="account-favorites-header">
+          <span class="account-favorites-title">
+            <span style="color: var(--accent-gold);">★</span>
+            <span>Your Stored Favorites</span>
+          </span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);" id="dash-fav-subtitle">Persistent in database</span>
+        </div>
+
+        <div class="account-favorites-list" id="dash-favorites-list">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="account-footer-actions">
+          <button type="button" class="account-logout-btn" id="dash-logout-btn">
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="js/data.js?v=64"></script>
-  <script src="js/favorites.js?v=41"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="js/favorites.js?v=42"></script>
   <script src="js/epg.js?v=40"></script>
   <script src="js/player.js?v=59"></script>
   <script src="js/us-channels.js?v=6"></script>
-  <script src="js/ui.js?v=72"></script>
-  <script src="js/app.js?v=81"></script>
+  <script src="js/ui.js?v=74"></script>
+  <script src="js/app.js?v=84"></script>
 </body>
 </html>
