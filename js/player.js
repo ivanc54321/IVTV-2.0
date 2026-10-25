@@ -1169,7 +1169,6 @@ class PlayerController {
     }
 
     // Update Player UI details (with robust local logo support & fallback)
-    const chNumStr = channel.chNumber ? ` • CH ${channel.chNumber}` : '';
     const logoSrc = channel.logo || (channel.slug ? `assets/logos/${channel.slug}.png` : '') || channel.logoUrl || '';
     const fallbackDomain = window.IVTV_US_TV_LOGO_FALLBACK_DOMAINS?.[channel.id || channel.slug];
     const fallbackUrl = fallbackDomain
@@ -1178,7 +1177,7 @@ class PlayerController {
     const logoTag = logoSrc
       ? `<img src="${logoSrc}" class="theater-channel-logo" alt="${channel.name}" data-fallback-src="${fallbackUrl}" onerror="if(this.dataset.fallbackSrc && !this.dataset.fallback){this.dataset.fallback='1';this.src=this.dataset.fallbackSrc;}else{this.style.display='none';}">`
       : '';
-    document.getElementById('theater-channel-title').innerHTML = `${logoTag}<span>${channel.name}${chNumStr}</span>`;
+    document.getElementById('theater-channel-title').innerHTML = logoTag;
 
     // Top-left status badges: show prominent USTV badge for U.S. TV channels
     const statusBadges = document.querySelector('.theater-status-badges');

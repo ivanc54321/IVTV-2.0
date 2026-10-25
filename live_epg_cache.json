@@ -1,6 +1,6 @@
 {
   "status": "success",
-  "timestamp": 1792925641,
+  "timestamp": 1792964616,
   "date": "20261025",
   "source": "Freeview Official (freeview.co.uk) & Sky UK Hawk Linear EPG",
   "channels": {
@@ -10371,24 +10371,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-sports-premier-league-uk-2130",
-          "title": "PL: Coventry City v Fulham Hlts",
-          "subtitle": "S2026E348",
-          "timeStr": "9:30 pm",
-          "start": "21:30",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 30,
-          "durationMinutes": 30,
-          "tag": "S2026 E348",
-          "desc": "Coventry return to the CBS Arena following defeat to Spurs earlier this week as Frank Lampard's side meet Fulham - finally off the mark with victory last weekend over Hull. (24.10)",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792877400,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-sports-premier-league-uk-2200",
           "title": "PL: Arsenal v Everton Highlights",
           "subtitle": "S2026E349",
@@ -11081,24 +11063,6 @@
       "genre": "Marquee Live Sport",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-sports-main-event-live-uk-1930",
-          "title": "Live US F1 GP: Qualifying",
-          "subtitle": "",
-          "timeStr": "7:30 pm",
-          "start": "19:30",
-          "end": "22:55",
-          "startHour": 19,
-          "startMin": 30,
-          "durationMinutes": 205,
-          "tag": "Live Sport",
-          "desc": "The starting grid for the United States Grand Prix is set with F1 qualifying as the drivers attempt to battle their way through to the Q3 top-10 shootout for a shot at pole.",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792870200,
-          "epochEnd": 1792882500,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-sports-main-event-live-uk-2255",
           "title": "Live F1 Academy: Race 2",
@@ -12378,24 +12342,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-sports-plus-uk-2100",
-          "title": "Sky Sports Catch-Up",
-          "subtitle": "",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 60,
-          "tag": "Live Sport",
-          "desc": "Take a moment to catch-up with the all biggest sports stories hitting the headlines.",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792875600,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-sports-plus-uk-2200",
           "title": "Live NBA: Heat @ Hornets",
           "subtitle": "S2022E118",
@@ -12710,24 +12656,6 @@
       "genre": "Live Cricket",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-sports-cricket-uk-2100",
-          "title": "2nd ODI: England v India Hlts",
-          "subtitle": "",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 60,
-          "tag": "Live Sport",
-          "desc": "England and India meet in Cardiff for the second ODI in a three-match series. (16.07)",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792875600,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-sports-cricket-uk-2200",
           "title": "3rd ODI: England v India Hlts",
@@ -13098,24 +13026,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-sports-golf-uk-2130",
-          "title": "DP World Tour Golf Highlights",
-          "subtitle": "",
-          "timeStr": "9:30 pm",
-          "start": "21:30",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 30,
-          "durationMinutes": 30,
-          "tag": "Live Sport",
-          "desc": "Tournament highlights from the 2026 edition of the DP World India Championship, taking place at Delhi Golf Club. A year ago, Tommy Fleetwood captured the inaugural title.",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792877400,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-sports-golf-uk-2200",
           "title": "Golf's Greatest Holes: Scotland",
           "subtitle": "",
@@ -13466,24 +13376,6 @@
       "genre": "Formula 1 Motorsport",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-sports-f1-uk-1930",
-          "title": "Live US F1 GP: Qualifying",
-          "subtitle": "",
-          "timeStr": "7:30 pm",
-          "start": "19:30",
-          "end": "22:55",
-          "startHour": 19,
-          "startMin": 30,
-          "durationMinutes": 205,
-          "tag": "Live Sport",
-          "desc": "The starting grid for the United States Grand Prix is set with F1 qualifying as the drivers attempt to battle their way through to the Q3 top-10 shootout for a shot at pole.",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792870200,
-          "epochEnd": 1792882500,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-sports-f1-uk-2255",
           "title": "Live F1 Academy: Race 2",
@@ -14051,24 +13943,6 @@
       "genre": "Live ATP & WTA Tennis",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-sports-tennis-uk-2100",
-          "title": "Tennis Highlights",
-          "subtitle": "",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:30",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 90,
-          "tag": "Live Sport",
-          "desc": "World number one Elena Rybakina, defending her title in Ningbo, competes in a semi-final clash at the WTA 500 against the number six seed Diana Shnaider. (24.10)",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792875600,
-          "epochEnd": 1792881000,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-sports-tennis-uk-2230",
           "title": "WTA All Access Magazine 2026",
@@ -14709,24 +14583,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-sports-news-uk-2100",
-          "title": "Sky Sports Catch-Up",
-          "subtitle": "",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 60,
-          "tag": "Live Sport",
-          "desc": "Take a moment to catch-up with the all biggest sports stories hitting the headlines.",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792875600,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-sports-news-uk-2200",
           "title": "Sky Sports News",
           "subtitle": "",
@@ -15204,24 +15060,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-sports-racing-uk-2000",
-          "title": "Stateside Live",
-          "subtitle": "",
-          "timeStr": "8:00 pm",
-          "start": "20:00",
-          "end": "00:15",
-          "startHour": 20,
-          "startMin": 0,
-          "durationMinutes": 255,
-          "tag": "Live Sport",
-          "desc": "Live US racing from Keeneland, Belmont, Woodbine, Laurel Park, Gulfstream, Horseshoe Indianapolis, Santa Anita, Fairmount, Mahoning Valley and Charles Town. Greyhound racing also features.",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792872000,
-          "epochEnd": 1792887300,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-sports-racing-uk-0015",
           "title": "Racing To Win",
           "subtitle": "",
@@ -15428,24 +15266,6 @@
       "genre": "Variety Sport",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-sports-mix-uk-2130",
-          "title": "NBA 80's",
-          "subtitle": "S2026E5",
-          "timeStr": "9:30 pm",
-          "start": "21:30",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 30,
-          "durationMinutes": 30,
-          "tag": "S2026 E5",
-          "desc": "As the Lakers fulfil back-to-back title victories, the Pistons are on the verge of dominance and Michael Jordan delivers a shot to remember. (5 of 5)",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792877400,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-sports-mix-uk-2200",
           "title": "NFL Highlights",
@@ -15870,24 +15690,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-sports-action-uk-2100",
-          "title": "NFL Panthers @ Eagles Highlights",
-          "subtitle": "S2026E279",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 60,
-          "tag": "S2026 E279",
-          "desc": "A chance for the Philadelphia Eagles to end a three-game losing run as Jalen Hurts and co welcome the Carolina Panthers to Lincoln Financial Field for a week six NFL match-up. (18.10)",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792875600,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-sports-action-uk-2200",
           "title": "NFL Bills @ Raiders Highlights",
           "subtitle": "S2026E273",
@@ -16239,24 +16041,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-sports-laliga-uk-2100",
-          "title": "NASCAR Highlights: Phoenix Raceway",
-          "subtitle": "S2026E91",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 60,
-          "tag": "S2026 E91",
-          "desc": "Highlights from the latest round of the 2026 NASCAR Cup Series.",
-          "isMovie": false,
-          "isSport": true,
-          "epochStart": 1792875600,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-sports-laliga-uk-2200",
           "title": "LALIGA: Valencia v Villarreal",
           "subtitle": "",
@@ -16572,24 +16356,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-cinema-premiere-uk-2100",
-          "title": "Scream 7",
-          "subtitle": "",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "23:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 120,
-          "tag": "Feature Film",
-          "desc": "A new Ghostface emerges in the town where Sidney Prescott is and her daughter becomes the next target. (2026)(114 mins)",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792882800,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-cinema-premiere-uk-2300",
           "title": "The Crow (2024)",
           "subtitle": "",
@@ -16832,24 +16598,6 @@
       "genre": "Blockbuster Hits",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-cinema-hits-uk-2130",
-          "title": "The Lego Ninjago Movie",
-          "subtitle": "",
-          "timeStr": "9:30 pm",
-          "start": "21:30",
-          "end": "23:15",
-          "startHour": 21,
-          "startMin": 30,
-          "durationMinutes": 105,
-          "tag": "Feature Film",
-          "desc": "The Secret Ninja Force must form an uneasy alliance with the villainous Lord Garmadon when an even greater threat emerges. (2017)(98 mins)",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792877400,
-          "epochEnd": 1792883700,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-cinema-hits-uk-2315",
           "title": "Open Season",
@@ -17148,24 +16896,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-cinema-family-uk-2110",
-          "title": "A Shaun The Sheep Movie:...",
-          "subtitle": "",
-          "timeStr": "9:10 pm",
-          "start": "21:10",
-          "end": "22:40",
-          "startHour": 21,
-          "startMin": 10,
-          "durationMinutes": 90,
-          "tag": "Feature Film",
-          "desc": "...Farmageddon. Shaun makes a new friend when an alien touches down, but a dangerous group set out to find him first. Fun animation. (2019)(86 mins)",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792876200,
-          "epochEnd": 1792881600,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-cinema-family-uk-2240",
           "title": "Chicken Run",
           "subtitle": "",
@@ -17463,24 +17193,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-cinema-action-uk-2125",
-          "title": "The Lost World: Jurassic Park",
-          "subtitle": "",
-          "timeStr": "9:25 pm",
-          "start": "21:25",
-          "end": "23:35",
-          "startHour": 21,
-          "startMin": 25,
-          "durationMinutes": 130,
-          "tag": "Feature Film",
-          "desc": "In this hit sequel to Jurassic Park, scientists discover a second dinosaur island which has been untouched - until now... Violence/flashing images. (1997)(134 mins)",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792877100,
-          "epochEnd": 1792884900,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-cinema-action-uk-2335",
           "title": "Hancock",
           "subtitle": "",
@@ -17705,24 +17417,6 @@
       "genre": "Comedy Movies",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-cinema-comedy-uk-2050",
-          "title": "Finding Your Feet",
-          "subtitle": "",
-          "timeStr": "8:50 pm",
-          "start": "20:50",
-          "end": "22:50",
-          "startHour": 20,
-          "startMin": 50,
-          "durationMinutes": 120,
-          "tag": "Feature Film",
-          "desc": "Snooty Imelda Staunton tries to rebuild her life after discovering her husband's infidelity, taking refuge with bohemian sister Celia Imrie. (2017)(111 mins)",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792875000,
-          "epochEnd": 1792882200,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-cinema-comedy-uk-2250",
           "title": "Little Fockers",
@@ -18003,24 +17697,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-cinema-thriller-uk-2110",
-          "title": "How to Make A Killing",
-          "subtitle": "",
-          "timeStr": "9:10 pm",
-          "start": "21:10",
-          "end": "23:10",
-          "startHour": 21,
-          "startMin": 10,
-          "durationMinutes": 120,
-          "tag": "Suspense & Crime",
-          "desc": "Disowned at birth by his wealthy family, Glen Powell will stop at nothing to reclaim his inheritance, no matter who stands in his way. (2026)(105 mins)",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792876200,
-          "epochEnd": 1792883400,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-cinema-thriller-uk-2310",
           "title": "Snatch",
           "subtitle": "",
@@ -18264,24 +17940,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-cinema-drama-uk-2110",
-          "title": "True Grit (2010)",
-          "subtitle": "",
-          "timeStr": "9:10 pm",
-          "start": "21:10",
-          "end": "23:05",
-          "startHour": 21,
-          "startMin": 10,
-          "durationMinutes": 115,
-          "tag": "Feature Film",
-          "desc": "When her father is murdered, young Hailee Steinfeld hires US Marshal Jeff Bridges to track down the killer. Coen Brothers Western with Matt Damon. Violence/flashing images. (2010)(106 mins)",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792876200,
-          "epochEnd": 1792883100,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-cinema-drama-uk-2305",
           "title": "True Grit (1969)",
           "subtitle": "",
@@ -18524,24 +18182,6 @@
       "genre": "Sci-Fi & Horror",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-cinema-sci-fi-horror-uk-2100",
-          "title": "Evil Dead Rise",
-          "subtitle": "",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "23:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 120,
-          "tag": "Feature Film",
-          "desc": "A reunion between two sisters is cut short by the rise of flesh-eating demons, thrusting them into a primal battle for survival. Horror sequel. (2023)(96 mins)",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792882800,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-cinema-sci-fi-horror-uk-2300",
           "title": "SurrealEstate",
@@ -19056,24 +18696,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-cinema-greats-uk-2100",
-          "title": "The Bodyguard",
-          "subtitle": "",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "23:10",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 130,
-          "tag": "Hollywood Classics",
-          "desc": "Megastar singer Whitney Houston hires bodyguard Kevin Costner to protect her from a stalker. Oscar-nominated romantic drama. (1992)",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792883400,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-cinema-greats-uk-2310",
           "title": "The Green Mile",
           "subtitle": "",
@@ -19298,24 +18920,6 @@
       "genre": "Independent & Arthouse",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-cinema-select-uk-2100",
-          "title": "Coroner",
-          "subtitle": "S1E1",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 60,
-          "tag": "S1 E1",
-          "desc": "Newly appointed coroner Jenny investigates a string of mysterious deaths in Toronto. Her first case hits close to home when a teen dies in a youth detention centre. (S1 Ep1/8)",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-cinema-select-uk-2200",
           "title": "Walker",
@@ -19776,24 +19380,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-atlantic-uk-2100",
-          "title": "Friday The 13th (1980)",
-          "subtitle": "",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:45",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 105,
-          "tag": "Prestige HBO & Sky Originals",
-          "desc": "A group of teenage camp counsellors attempt to re-open an abandoned summer camp with a tragic past, but they are stalked by a mysterious, relentless killer. (1980)",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792881900,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-atlantic-uk-2245",
           "title": "Prisoner",
           "subtitle": "S1E5",
@@ -20252,24 +19838,6 @@
       "genre": "Flagship Entertainment",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-showcase-2100",
-          "title": "New: Saturday Night Live UK",
-          "subtitle": "S2E6",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:15",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 75,
-          "tag": "S2 E6",
-          "desc": "Live from London, it's Saturday Night! Cynthia Erivo and Blossoms perform with topical sketches and razor-sharp satire in a bold new British comedy show. (S2, ep 6)",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792880100,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-showcase-2215",
           "title": "New: Slo Pitch",
@@ -20747,24 +20315,6 @@
       "genre": "Premium US & UK Comedy",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-comedy-uk-2120",
-          "title": "Paddy Young: Hungry. Horny Scared",
-          "subtitle": "",
-          "timeStr": "9:20 pm",
-          "start": "21:20",
-          "end": "22:30",
-          "startHour": 21,
-          "startMin": 20,
-          "durationMinutes": 70,
-          "tag": "Feature Film",
-          "desc": ": Northern comedian Paddy Young brings his sell-out Edinburgh Fringe show to the stage, mixing surreal stories and sharp observations.",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792876800,
-          "epochEnd": 1792881000,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-comedy-uk-2230",
           "title": "Saturday Night Live UK",
@@ -21477,24 +21027,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-crime-uk-2100",
-          "title": "Ireland's Most Evil Killers",
-          "subtitle": "S1E4",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 60,
-          "tag": "S1 E4",
-          "desc": "Catherine Nevin: A supposed violent break-in - which left Catherine Nevin's husband dead - was initially seen as a robbery gone wrong... until police dug deeper. (S1, ep 4)",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-crime-uk-2200",
           "title": "Murder Uncut",
           "subtitle": "S1E5",
@@ -22026,24 +21558,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "sky-arts-uk-2000",
-          "title": "New: David Gilmour: Live At The Circus Maximus, Rome",
-          "subtitle": "",
-          "timeStr": "8:00 pm",
-          "start": "20:00",
-          "end": "22:55",
-          "startHour": 20,
-          "startMin": 0,
-          "durationMinutes": 175,
-          "tag": "Music, Theatre & Fine Arts",
-          "desc": "New. Captured at Rome's historic Circus Maximus in 2024, David Gilmour performs songs from his latest album alongside favourites from the Pink Floyd.",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792872000,
-          "epochEnd": 1792882500,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "sky-arts-uk-2255",
           "title": "Have You Got It Yet? The...",
           "subtitle": "",
@@ -22448,24 +21962,6 @@
       "genre": "World History & Mysteries",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "sky-history-uk-2100",
-          "title": "World War II With Tom Hanks",
-          "subtitle": "S1E14",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 60,
-          "tag": "S1 E14",
-          "desc": "Long Road to Tokyo: There's conflict in the jungles and plains of Asia the 'forgotten theatre' of World War II, as America struggles to bring the fight to Tokyo's door. (S1, ep 14)",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
         {
           "id": "sky-history-uk-2200",
           "title": "UFOs Declassified",
@@ -23034,24 +22530,6 @@
       "source": "Sky UK Official",
       "shows": [
         {
-          "id": "gold-uk-2100",
-          "title": "Only Fools and Horses Jolly Boys Outing",
-          "subtitle": "S6E7",
-          "timeStr": "9:00 pm",
-          "start": "21:00",
-          "end": "22:50",
-          "startHour": 21,
-          "startMin": 0,
-          "durationMinutes": 110,
-          "tag": "S6 E7",
-          "desc": "The classic 1989 Christmas special of the beloved sitcom. Del, Rodney and Uncle Albert take their mates from the Nag's Head on a disastrous trip to Margate.",
-          "isMovie": true,
-          "isSport": false,
-          "epochStart": 1792875600,
-          "epochEnd": 1792882200,
-          "source": "Sky UK Official"
-        },
-        {
           "id": "gold-uk-2250",
           "title": "The Story of Only Fools and Horses",
           "subtitle": "S1E6",
@@ -23384,24 +22862,6 @@
       "genre": "Global Markets & Finance",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "bloomberg-us-2130",
-          "title": "Bloomberg Primer",
-          "subtitle": "",
-          "timeStr": "9:30 pm",
-          "start": "21:30",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 30,
-          "durationMinutes": 30,
-          "tag": "Global Markets & Finance",
-          "desc": "Humanoid robots that use AI are going mainstream, but they're far from proven. With billions of dollars invested, can they deliver real-world value or will they fall short of the hype? S2, Ep2",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792877400,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
         {
           "id": "bloomberg-us-2200",
           "title": "The Mishal Husain Show",
@@ -24131,24 +23591,6 @@
       "genre": "World News",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "cnn-international-2130",
-          "title": "CNN Creators",
-          "subtitle": "",
-          "timeStr": "9:30 pm",
-          "start": "21:30",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 30,
-          "durationMinutes": 30,
-          "tag": "World News",
-          "desc": "Thursday, October 22, 2026 1130am ET. The Creators ask why trading cards are having such a moment in 2026, with millions of dollars changing hands for the right collectible.",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792877400,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
         {
           "id": "cnn-international-2200",
           "title": "CNN Newsroom Saturday",
@@ -24896,24 +24338,6 @@
       "genre": "Breaking News",
       "source": "Sky UK Official",
       "shows": [
-        {
-          "id": "cnn-live-news-2130",
-          "title": "CNN Creators",
-          "subtitle": "",
-          "timeStr": "9:30 pm",
-          "start": "21:30",
-          "end": "22:00",
-          "startHour": 21,
-          "startMin": 30,
-          "durationMinutes": 30,
-          "tag": "Breaking News",
-          "desc": "Thursday, October 22, 2026 1130am ET. The Creators ask why trading cards are having such a moment in 2026, with millions of dollars changing hands for the right collectible.",
-          "isMovie": false,
-          "isSport": false,
-          "epochStart": 1792877400,
-          "epochEnd": 1792879200,
-          "source": "Sky UK Official"
-        },
         {
           "id": "cnn-live-news-2200",
           "title": "CNN Newsroom Saturday",
