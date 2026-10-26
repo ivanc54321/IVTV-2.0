@@ -431,6 +431,56 @@ US_CHANNEL_STREAMS = {
         "url": "http://23.237.104.106:8080/USA_BLOOMBERG/index.m3u8",
         "backupUrl": "https://aegis-cloudfront-1.tubi.video/7e1c26b7-7975-4240-9a4f-480eaa8f3ea4/playlist.m3u8",
         "fallback": "https://www.entrepreneur.com/tv"
+    },
+    "hbo": {
+        "url": "http://23.237.104.106:8080/USA_STARZ_WEST/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_MOREMAX/index.m3u8",
+        "fallback": "https://www.hbo.com/"
+    },
+    "hbo-usa": {
+        "url": "http://23.237.104.106:8080/USA_STARZ_WEST/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_MOREMAX/index.m3u8",
+        "fallback": "https://www.hbo.com/"
+    },
+    "hbo-family": {
+        "url": "http://23.237.104.106:8080/USA_SHOWTIME_FAMILY/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_MOREMAX/index.m3u8",
+        "fallback": "https://www.hbo.com/"
+    },
+    "hbo-family-usa": {
+        "url": "http://23.237.104.106:8080/USA_SHOWTIME_FAMILY/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_MOREMAX/index.m3u8",
+        "fallback": "https://www.hbo.com/"
+    },
+    "hbo-hits": {
+        "url": "http://23.237.104.106:8080/USA_MOREMAX/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_STARZ_WEST/index.m3u8",
+        "fallback": "https://www.hbo.com/"
+    },
+    "hbo-hits-usa": {
+        "url": "http://23.237.104.106:8080/USA_MOREMAX/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_STARZ_WEST/index.m3u8",
+        "fallback": "https://www.hbo.com/"
+    },
+    "hbo-signature": {
+        "url": "http://23.237.104.106:8080/USA_5STARMAX/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_STARZ_WEST/index.m3u8",
+        "fallback": "https://www.hbo.com/"
+    },
+    "hbo-signature-usa": {
+        "url": "http://23.237.104.106:8080/USA_5STARMAX/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_STARZ_WEST/index.m3u8",
+        "fallback": "https://www.hbo.com/"
+    },
+    "cinemax": {
+        "url": "http://23.237.104.106:8080/USA_CINEMAX_WEST/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_MOREMAX/index.m3u8",
+        "fallback": "https://www.cinemax.com/"
+    },
+    "cinemax-usa": {
+        "url": "http://23.237.104.106:8080/USA_CINEMAX_WEST/index.m3u8",
+        "backupUrl": "http://23.237.104.106:8080/USA_MOREMAX/index.m3u8",
+        "fallback": "https://www.cinemax.com/"
     }
 }
 
@@ -1250,6 +1300,41 @@ def _make_proxy_link(full_u, ref=None):
         link += f"&ref={urllib.parse.quote(ref, safe='')}"
     return link
 
+import subprocess
+
+_TS_TRANSCODE_CACHE = {}
+_TS_TRANSCODE_KEYS = []
+_TS_TRANSCODE_LOCK = threading.Lock()
+
+def get_cached_transcoded_ts(url):
+    with _TS_TRANSCODE_LOCK:
+        return _TS_TRANSCODE_CACHE.get(url)
+
+def cache_transcoded_ts(url, data):
+    with _TS_TRANSCODE_LOCK:
+        if len(_TS_TRANSCODE_KEYS) >= 50:
+            oldest = _TS_TRANSCODE_KEYS.pop(0)
+            _TS_TRANSCODE_CACHE.pop(oldest, None)
+        _TS_TRANSCODE_CACHE[url] = data
+        _TS_TRANSCODE_KEYS.append(url)
+
+def transcode_ts_ac3_to_aac(raw_ts_bytes):
+    if not raw_ts_bytes or len(raw_ts_bytes) < 188:
+        return raw_ts_bytes
+    try:
+        proc = subprocess.Popen(
+            ['ffmpeg', '-v', 'error', '-i', 'pipe:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-ac', '2', '-f', 'mpegts', 'pipe:1'],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        out, _ = proc.communicate(input=raw_ts_bytes, timeout=4)
+        if out and len(out) > 500:
+            return out
+    except Exception as e:
+        print(f"[Transcode Audio] AC-3 to AAC notice: {e}")
+    return raw_ts_bytes
+
 def proxy_hls_stream(handler, target_url, referer_override=None):
     if not target_url:
         handler.send_response(400)
@@ -1261,6 +1346,9 @@ def proxy_hls_stream(handler, target_url, referer_override=None):
     if target_url.startswith('u_'):
         with _URL_LOCK:
             target_url = _URL_SHORTENER_MAP.get(target_url, target_url)
+
+    if target_url.startswith('/'):
+        target_url = f"http://127.0.0.1:{PORT}" + target_url
 
     # Auto-detect necessary upstream headers based on target domain
     if not referer_override:
@@ -1355,6 +1443,12 @@ def proxy_hls_stream(handler, target_url, referer_override=None):
                 if not stripped:
                     rewritten.append(line)
                 elif stripped.startswith('#'):
+                    if stripped.startswith('#EXT-X-STREAM-INF:'):
+                        if any(k in target_url for k in ['USA_CINEMAX_WEST', 'USA_5STARMAX', 'USA_STARZ_COMEDY']):
+                            if 'CODECS=' in line:
+                                line = re.sub(r'CODECS="[^"]*"', 'CODECS="avc1.64002a,mp4a.40.2"', line)
+                            else:
+                                line += ',CODECS="avc1.64002a,mp4a.40.2"'
                     if 'URI="' in line:
                         def replace_uri(match):
                             uri = match.group(1)
@@ -1391,6 +1485,35 @@ def proxy_hls_stream(handler, target_url, referer_override=None):
             response_started = True
             handler.wfile.write(body)
         else:
+            # Check if target is a TS segment from an AC3 channel requiring AC-3 -> AAC audio transcoding
+            is_ac3_channel = any(k in target_url for k in ['USA_CINEMAX_WEST', 'USA_5STARMAX', 'USA_STARZ_COMEDY'])
+            is_ts_segment = any(ext in target_url.lower() for ext in ['.ts', 'mono/'])
+            
+            if is_ac3_channel and is_ts_segment:
+                cached_data = get_cached_transcoded_ts(target_url)
+                if cached_data:
+                    handler.send_response(200)
+                    handler.send_header('Content-Type', 'video/mp2t')
+                    handler.send_header('Access-Control-Allow-Origin', '*')
+                    handler.send_header('Cache-Control', 'public, max-age=120')
+                    handler.send_header('Content-Length', str(len(cached_data)))
+                    handler.end_headers()
+                    handler.wfile.write(cached_data)
+                    return
+
+                raw_ts = (prefix + upstream.read()) if prefix else upstream.read()
+                transcoded = transcode_ts_ac3_to_aac(raw_ts)
+                cache_transcoded_ts(target_url, transcoded)
+
+                handler.send_response(200)
+                handler.send_header('Content-Type', 'video/mp2t')
+                handler.send_header('Access-Control-Allow-Origin', '*')
+                handler.send_header('Cache-Control', 'public, max-age=120')
+                handler.send_header('Content-Length', str(len(transcoded)))
+                handler.end_headers()
+                handler.wfile.write(transcoded)
+                return
+
             handler.send_response(upstream.getcode())
             handler.send_header('Content-Type', content_type)
             handler.send_header('Access-Control-Allow-Origin', '*')

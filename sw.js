@@ -3,7 +3,7 @@
    Enables 100% Offline Capability, Local Shell Caching & Instant Standalone Launch
    ========================================================================== */
 
-const CACHE_NAME = 'ivtv-cache-v49';
+const CACHE_NAME = 'ivtv-cache-v50';
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
@@ -82,6 +82,16 @@ const PRECACHE_ASSETS = [
   "./assets/logos/gb-news.png",
   "./assets/logos/gold-uk.png",
   "./assets/logos/hbo.gif",
+  "./assets/logos/hbo.png",
+  "./assets/logos/hbo-usa.png",
+  "./assets/logos/hbo-family.png",
+  "./assets/logos/hbo-family-usa.png",
+  "./assets/logos/hbo-hits.png",
+  "./assets/logos/hbo-hits-usa.png",
+  "./assets/logos/hbo-signature.png",
+  "./assets/logos/hbo-signature-usa.png",
+  "./assets/logos/cinemax.png",
+  "./assets/logos/cinemax-usa.png",
   "./assets/logos/itv1-uk.png",
   "./assets/logos/itv2-uk.png",
   "./assets/logos/itv3-uk.png",

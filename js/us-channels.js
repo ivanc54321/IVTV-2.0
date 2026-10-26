@@ -38,13 +38,19 @@ window.IVTV_US_TV_CHANNELS = [
   { name: "USA Network", slug: "usa-network-usa", category: "Entertainment / Drama", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/USA_Network_Logo.svg/512px-USA_Network_Logo.svg.png" },
   { name: "VH1", slug: "vh1-usa", category: "Music / Reality", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Vh1_logo.svg/512px-Vh1_logo.svg.png" },
   { name: "WE tv", slug: "we-tv-usa", category: "Reality / Entertainment", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/WE_tv_Logo.svg/512px-WE_tv_Logo.svg.png" },
-  { name: "EntrepreneurTV", slug: "entrepreneurtv", category: "Business / Entrepreneurship", logoUrl: "https://vcz-ktest2-cloud-vodlix-com.b-cdn.net/u/ktest2/files/video_logos/2025/12/03/1764790044vOw038SRbF.png" }
+  { name: "EntrepreneurTV", slug: "entrepreneurtv", category: "Business / Entrepreneurship", logoUrl: "https://vcz-ktest2-cloud-vodlix-com.b-cdn.net/u/ktest2/files/video_logos/2025/12/03/1764790044vOw038SRbF.png" },
+  { name: "HBO", slug: "hbo-usa", category: "Premium / Cinema", logoUrl: "assets/logos/hbo-usa.png" },
+  { name: "HBO Family", slug: "hbo-family-usa", category: "Premium / Family Movies", logoUrl: "assets/logos/hbo-family-usa.png" },
+  { name: "HBO Hits", slug: "hbo-hits-usa", category: "Premium / Blockbusters", logoUrl: "assets/logos/hbo-hits-usa.png" },
+  { name: "HBO Signature", slug: "hbo-signature-usa", category: "Premium / Award-Winning", logoUrl: "assets/logos/hbo-signature-usa.png" },
+  { name: "Cinemax", slug: "cinemax-usa", category: "Premium / Action & Movies", logoUrl: "assets/logos/cinemax-usa.png" }
 ];
 
 window.IVTV_US_TV_GROUPS = [
+  { name: "HBO & Premium Cinema", slugs: ["hbo-usa", "hbo-family-usa", "hbo-hits-usa", "hbo-signature-usa", "cinemax-usa"] },
   { name: "News", slugs: ["abc-usa", "abc-ny-usa", "cnn-usa", "fox-news-usa", "msnbc-usa"] },
   { name: "Entertainment", slugs: ["ae-usa", "adult-swim-usa", "bbc-america-usa", "comedy-central-usa", "e-entertainment-usa", "freeform-usa", "fx-usa", "paramount-network-usa", "tbs-usa", "tnt-usa", "trutv-usa", "usa-network-usa", "we-tv-usa"] },
-  { name: "Movies", slugs: ["amc-usa", "hallmark-channel-usa", "ifc-usa", "lifetime-usa", "syfy-usa"] },
+  { name: "Movies", slugs: ["hbo-usa", "hbo-family-usa", "hbo-hits-usa", "hbo-signature-usa", "cinemax-usa", "amc-usa", "hallmark-channel-usa", "ifc-usa", "lifetime-usa", "syfy-usa"] },
   { name: "Documentary & Science", slugs: ["ahc-usa", "animal-planet-usa", "discovery-channel-usa", "history-channel-usa", "investigation-discovery-usa", "national-geographic-usa", "science-channel-usa"] },
   { name: "Lifestyle & Reality", slugs: ["food-network-usa", "hgtv-usa", "tlc-usa", "travel-channel-usa"] },
   { name: "Music & Business", slugs: ["axs-tv-usa", "mtv-usa", "vh1-usa", "entrepreneurtv"] },
@@ -91,7 +97,12 @@ window.IVTV_US_TV_LOGO_FALLBACK_DOMAINS = {
   "usa-network-usa": "usanetwork.com",
   "vh1-usa": "vh1.com",
   "we-tv-usa": "wetv.com",
-  "entrepreneurtv": "stirr.com"
+  "entrepreneurtv": "stirr.com",
+  "hbo-usa": "hbo.com",
+  "hbo-family-usa": "hbo.com",
+  "hbo-hits-usa": "hbo.com",
+  "hbo-signature-usa": "hbo.com",
+  "cinemax-usa": "cinemax.com"
 };
 
 // Automatically integrate US TV channels into window.IVTV_DATA.channels
