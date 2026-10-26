@@ -1047,6 +1047,7 @@ class UIController {
         const fallbackUrl = fallbackDomain
           ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(fallbackDomain)}&sz=128`
           : '';
+        const isFav = window.ivtvStorage && window.ivtvStorage.isFavorite(channel.slug);
         const liveProg = window.ivtvEPG ? window.ivtvEPG.getCurrentProgram(channel.slug) : null;
         const liveLabel = liveProg ? `${escapeHtml(liveProg.title)}` : escapeHtml(channel.category);
         return `
