@@ -1170,11 +1170,20 @@ def fetch_live_epg_feed():
                 "shows": shows
             }
 
+    # Integrate authentic US channel schedules adjusted for UK London Time
+    try:
+        import us_epg_generator
+        us_schedules = us_epg_generator.generate_all_us_channel_schedules(start_unix)
+        for us_slug, us_obj in us_schedules.items():
+            channels_output[us_slug] = us_obj
+    except Exception as e:
+        print(f"[EPG] US Channels generation notice: {e}")
+
     return {
         "status": "success",
         "timestamp": int(time.time()),
         "date": today_str,
-        "source": "Freeview Official (freeview.co.uk) & Sky UK Hawk Linear EPG",
+        "source": "Freeview Official, Sky UK Hawk Linear EPG & US TV Guide (UK Time)",
         "channels": channels_output
     }
 

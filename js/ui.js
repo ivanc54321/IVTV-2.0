@@ -1047,9 +1047,10 @@ class UIController {
         const fallbackUrl = fallbackDomain
           ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(fallbackDomain)}&sz=128`
           : '';
-        const isFav = window.ivtvStorage && window.ivtvStorage.isFavorite(channel.slug);
+        const liveProg = window.ivtvEPG ? window.ivtvEPG.getCurrentProgram(channel.slug) : null;
+        const liveLabel = liveProg ? `${escapeHtml(liveProg.title)}` : escapeHtml(channel.category);
         return `
-          <article class="us-tv-card playable" role="button" tabindex="0" data-channel-id="${channel.slug}" onclick="window.ivtvPlayer?.openPlayer('${channel.slug}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.ivtvPlayer?.openPlayer('${channel.slug}')}" title="Watch ${escapeHtml(channel.name)} Live">
+          <article class="us-tv-card playable" role="button" tabindex="0" data-channel-id="${channel.slug}" onclick="window.ivtvPlayer?.openPlayer('${channel.slug}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.ivtvPlayer?.openPlayer('${channel.slug}')}" title="Watch ${escapeHtml(channel.name)} Live${liveProg ? ` - Now: ${escapeHtml(liveProg.title)}` : ''}">
             <div class="us-tv-card-media">
               <span class="us-tv-card-tag"><span class="live-pulse-dot" style="width:5px;height:5px;display:inline-block;margin-right:4px;"></span>LIVE HD</span>
               <button class="card-fav-btn us-tv-fav-btn ${isFav ? 'active' : ''}" 
@@ -1075,7 +1076,7 @@ class UIController {
             </div>
             <div class="us-tv-card-copy">
               <h4>${escapeHtml(channel.name)}</h4>
-              <p>${escapeHtml(channel.category)}</p>
+              <p class="us-tv-live-prog" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><span style="color:var(--accent-neon, #00ff88); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; margin-right: 4px;">NOW:</span>${liveLabel}</p>
             </div>
           </article>
         `;
@@ -1628,10 +1629,26 @@ class UIController {
     // Time slots
     const slots = window.ivtvEPG.getTimeSlots(windowStart, windowHours);
 
-    // Channels to show
-    let channels = window.IVTV_DATA.channels;
-    if (this.activeEPGCategory && this.activeEPGCategory !== 'all') {
-      channels = channels.filter(c => c.category === this.activeEPGCategory);
+    // Channels to show: Combine UK and US Channels
+    const ukChannels = (window.IVTV_DATA && window.IVTV_DATA.channels) ? [...window.IVTV_DATA.channels] : [];
+    const usChannels = (window.IVTV_US_TV_CHANNELS || []).map(us => ({
+      id: us.slug,
+      name: us.name,
+      category: 'US-TV',
+      subCategory: us.category,
+      chNumber: null,
+      logo: us.logoUrl,
+      logoUrl: us.logoUrl,
+      isUS: true
+    }));
+
+    let channels;
+    if (this.activeEPGCategory === 'US-TV') {
+      channels = usChannels;
+    } else if (this.activeEPGCategory && this.activeEPGCategory !== 'all') {
+      channels = ukChannels.filter(c => c.category === this.activeEPGCategory);
+    } else {
+      channels = [...ukChannels, ...usChannels];
     }
 
     // Calculate NOW line offset (240px channel column + minute progress)
@@ -1665,6 +1682,8 @@ class UIController {
         ? `<img src="${logoSrc}" class="epg-channel-logo-img" alt="${ch.name}" loading="lazy" onerror="if(this.dataset.fb!=='1'&&'${fallbackLogo}'){this.dataset.fb='1';this.src='${fallbackLogo}';}else{this.outerHTML='<span class=\\'epg-channel-icon\\'>${icon}</span>';}">`
         : `<span class="epg-channel-icon">${icon}</span>`;
 
+      const categoryLabel = ch.isUS ? (ch.subCategory || 'US Network') : `${ch.category}${ch.chNumber ? ` • CH ${ch.chNumber}` : ''}`;
+
       return `
         <div class="epg-channel-row" data-channel-id="${ch.id}">
           <div class="epg-channel-col">
@@ -1672,7 +1691,7 @@ class UIController {
               ${logoHtml}
               <div class="epg-channel-name-group">
                 <span class="epg-channel-name" title="${ch.name}">${ch.name}</span>
-                <span class="epg-channel-cat">${ch.category}${ch.chNumber ? ` • CH ${ch.chNumber}` : ''}</span>
+                <span class="epg-channel-cat">${categoryLabel}</span>
               </div>
             </div>
             <button class="epg-channel-play-btn" title="Watch ${ch.name} Live" onclick="window.ivtvPlayer.openPlayer('${ch.id}')">
@@ -1715,7 +1734,19 @@ class UIController {
   }
 
   handleProgramClick(channelId, progId) {
-    const channel = window.IVTV_DATA.channels.find(c => c.id === channelId);
+    let channel = window.IVTV_DATA.channels.find(c => c.id === channelId);
+    if (!channel && window.IVTV_US_TV_CHANNELS) {
+      const us = window.IVTV_US_TV_CHANNELS.find(c => c.slug === channelId || c.slug === channelId.replace('-usa', ''));
+      if (us) {
+        channel = {
+          id: us.slug,
+          name: us.name,
+          category: us.category,
+          logo: us.logoUrl,
+          logoUrl: us.logoUrl
+        };
+      }
+    }
     if (!channel || !window.ivtvEPG) return;
 
     const schedule = window.ivtvEPG.getScheduleForChannel(channelId);

@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="css/main.css?v=66">
   <link rel="stylesheet" href="css/components.css?v=48">
   <link rel="stylesheet" href="css/player.css?v=67">
-  <link rel="stylesheet" href="css/epg.css?v=61">
+  <link rel="stylesheet" href="css/epg.css?v=62">
 
   <!-- HLS.js for Pure Ad-Free Live Stream Playback (Local Zero-Latency with CDN Fallback) -->
   <script src="js/hls.min.js?v=11"></script>
@@ -1040,15 +1040,23 @@
       <!-- EPG Filter Bar -->
       <div class="epg-top-bar">
         <div class="epg-category-filters" id="epg-category-filters">
-          <button class="epg-filter-btn active" data-category="all">All (45 Channels)</button>
+          <button class="epg-filter-btn active" data-category="all">All Channels (90)</button>
+          <button class="epg-filter-btn" data-category="US-TV">🇺🇸 US &amp; HBO (45)</button>
           <button class="epg-filter-btn" data-category="Sports">🏆 Sports (14)</button>
           <button class="epg-filter-btn" data-category="Cinema">🍿 Cinema (11)</button>
           <button class="epg-filter-btn" data-category="Entertainment">🎬 Entertainment (16)</button>
           <button class="epg-filter-btn" data-category="News">📡 News (4)</button>
         </div>
-        <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.65rem;">
-          <span style="display:inline-block; width:8px; height:8px; background:#ff5252; border-radius:50%; box-shadow:0 0 6px #ff5252;"></span>
-          <span>Red marker indicates real-time broadcast</span>
+        <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+          <span style="display:inline-flex; align-items:center; gap: 0.35rem; color: var(--accent-neon, #00ff88); font-weight: 500;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Times Adjusted to UK London Time
+          </span>
+          <span style="opacity: 0.4;">•</span>
+          <span style="display:inline-flex; align-items:center; gap: 0.35rem;">
+            <span style="display:inline-block; width:8px; height:8px; background:#ff5252; border-radius:50%; box-shadow:0 0 6px #ff5252;"></span>
+            Red marker indicates real-time broadcast
+          </span>
         </div>
       </div>
 
@@ -1274,10 +1282,10 @@
   <script src="js/data.js?v=66"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="js/favorites.js?v=42"></script>
-  <script src="js/epg.js?v=40"></script>
+  <script src="js/epg.js?v=41"></script>
   <script src="js/player.js?v=66"></script>
   <script src="js/us-channels.js?v=8"></script>
-  <script src="js/ui.js?v=77"></script>
-  <script src="js/app.js?v=89"></script>
+  <script src="js/ui.js?v=78"></script>
+  <script src="js/app.js?v=90"></script>
 </body>
 </html>

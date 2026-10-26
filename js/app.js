@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // AUTO-VERSION CHECK & HARD CACHE PURGE (STANDALONE DESKTOP SYNC)
   // Ensures standalone app window always displays latest code without cache lag
   // ==========================================================================
-  const APP_BUILD_VER = 'v89';
+  const APP_BUILD_VER = 'v90';
   const lastKnownVer = localStorage.getItem('ivtv_client_build_ver');
 
   if (lastKnownVer !== APP_BUILD_VER) {
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   if ('serviceWorker' in navigator && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=52')
+      navigator.serviceWorker.register('sw.js?v=53')
         .then((reg) => {
           reg.update();
           console.log('[IVTV PWA] Service Worker registered successfully (scope: ' + reg.scope + ')');
