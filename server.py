@@ -790,17 +790,6 @@ def get_clean_stream(channel_id, force_refresh=False, use_backup=False):
             "channelId": channel_id
         }
 
-    if channel_id == "sky-showcase":
-        # Sky Showcase: verified working embed mirror on freeshot
-        return {
-            "success": True,
-            "type": "embed",
-            "streamUrl": "",
-            "fallbackEmbedUrl": "https://freeshot.live/embed/SkyShowcase.php",
-            "channelSlug": "SkyShowcase",
-            "currentToken": "",
-            "channelId": channel_id
-        }
 
     slug = CHANNEL_SLUGS.get(channel_id, "SkySportsPremierLeague")
     now = time.time()

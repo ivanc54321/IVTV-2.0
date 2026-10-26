@@ -39,6 +39,7 @@ class PlayerController {
     this.fallbackEmbedUrl = '';
     this.aspectRatioMode = localStorage.getItem('ivtv_player_aspect') || 'stretch'; // Default 'stretch' ('stretch' | 'fit' | 'fill')
     this.surfQuery = '';
+    this.surfCategory = 'all';
     this.osdTimer = null;
     this.controlsHideTimer = null;
     this.isHoveringBottomSection = false;
@@ -47,6 +48,7 @@ class PlayerController {
     this.sideGuideQuery = '';
     this.sideGuideClockTimer = null;
     this.justDraggedSideGuide = false;
+    this.sideGuideExpandedIds = new Set();
   }
 
   init() {
@@ -193,9 +195,7 @@ class PlayerController {
     if (errExtBtn) {
       errExtBtn.addEventListener('click', () => {
         if (this.fallbackEmbedUrl) {
-          window.open(this.fallbackEmbedUrl, '_blank');
-        } else if (this.currentChannel) {
-          window.open(`https://freeshot.live/embed/${this.currentChannel.id}.php`, '_blank');
+          window.open(this.fallbackEmbedUrl, '_blank', 'noopener,noreferrer');
         }
       });
     }
@@ -551,15 +551,15 @@ class PlayerController {
     this.resetControlsTimer = resetControlsTimer;
 
     if (this.modalContainer) {
-      this.modalContainer.addEventListener('mousemove', (e) => {
+      this.modalContainer.addEventListener('pointermove', (e) => {
         if (this.isHoveringBottomSection) {
           this.modalContainer.classList.remove('controls-hidden');
           return;
         }
         resetControlsTimer(3000);
       });
-      this.modalContainer.addEventListener('mousedown', () => resetControlsTimer(3000));
-      this.modalContainer.addEventListener('mouseleave', () => {
+      this.modalContainer.addEventListener('pointerdown', () => resetControlsTimer(3000));
+      this.modalContainer.addEventListener('pointerleave', () => {
         if (!this.isHoveringBottomSection) {
           resetControlsTimer(1000);
         }
@@ -568,18 +568,18 @@ class PlayerController {
 
     const bottomOverlay = document.getElementById('theater-bottom-overlay') || document.getElementById('theater-controls-bar');
     if (bottomOverlay) {
-      bottomOverlay.addEventListener('mouseenter', () => {
+      bottomOverlay.addEventListener('pointerenter', () => {
         if (!this.isOpen || !this.modalContainer) return;
         this.isHoveringBottomSection = true;
         this.modalContainer.classList.remove('controls-hidden');
         if (this.controlsHideTimer) clearTimeout(this.controlsHideTimer);
       });
-      bottomOverlay.addEventListener('mousemove', () => {
+      bottomOverlay.addEventListener('pointermove', () => {
         this.isHoveringBottomSection = true;
         if (this.modalContainer) this.modalContainer.classList.remove('controls-hidden');
         if (this.controlsHideTimer) clearTimeout(this.controlsHideTimer);
       });
-      bottomOverlay.addEventListener('mouseleave', () => {
+      bottomOverlay.addEventListener('pointerleave', () => {
         this.isHoveringBottomSection = false;
         resetControlsTimer(2500);
       });
@@ -587,16 +587,30 @@ class PlayerController {
 
     const header = this.modalContainer ? this.modalContainer.querySelector('.theater-header') : null;
     if (header) {
-      header.addEventListener('mouseenter', () => {
+      header.addEventListener('pointerenter', () => {
         if (!this.isOpen || !this.modalContainer) return;
         this.modalContainer.classList.remove('controls-hidden');
         if (this.controlsHideTimer) clearTimeout(this.controlsHideTimer);
       });
-      header.addEventListener('mouseleave', () => resetControlsTimer(3000));
+      header.addEventListener('pointerleave', () => resetControlsTimer(3000));
+    }
+
+    const hideControlsBtn = document.getElementById('theater-hide-controls-btn');
+    if (hideControlsBtn && this.modalContainer) {
+      hideControlsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.isHoveringBottomSection = false;
+        if (this.controlsHideTimer) clearTimeout(this.controlsHideTimer);
+        this.modalContainer.classList.add('controls-hidden');
+      });
     }
 
     // Keyboard controls
     window.addEventListener('keydown', (e) => {
+      if (this.isOpen && document.activeElement?.tagName !== 'INPUT') {
+        resetControlsTimer(3000);
+      }
       if (e.key === 'Escape' && this.isOpen) {
         if (this.isSideGuideOpen) {
           this.toggleSideGuide(false);
@@ -734,6 +748,14 @@ class PlayerController {
       }, 100);
     }
   }
+
+  isSkyChannel(channel) {
+    return Boolean(channel && (
+      (channel.id || '').toLowerCase().startsWith('sky') ||
+      (channel.name || '').toLowerCase().includes('sky')
+    ));
+  }
+
 
   toggleSideGuide(forceState) {
     const drawer = document.getElementById('theater-side-guide');
@@ -962,22 +984,36 @@ class PlayerController {
       // Get real-time EPG program data
       let nowTitle = 'Live Television Broadcast';
       let nowTimeRange = 'Broadcasting Live';
+      let nowDesc = '';
+      let nowTag = '';
+      let nowSubtitle = '';
+      let nowSource = '';
       let progressPercent = 50;
       let minsLeft = 'LIVE';
       let nextTitle = 'Upcoming Broadcast Schedule';
       let nextTimeRange = 'Up Next';
       let nextDuration = '';
+      let nextDesc = '';
+      let nextTag = '';
+      let nextSubtitle = '';
 
       if (window.ivtvEPG) {
         const prog = window.ivtvEPG.getCurrentProgram(ch.id);
         if (prog) {
           nowTitle = prog.title || nowTitle;
+          nowDesc = prog.desc || '';
+          nowTag = prog.tag || '';
+          nowSubtitle = prog.subtitle || '';
+          nowSource = prog.source || '';
           nowTimeRange = `${prog.startTimeFormatted} - ${prog.endTimeFormatted}`;
           progressPercent = prog.progressPercent !== undefined ? prog.progressPercent : 50;
           minsLeft = prog.minutesLeft ? `${prog.minutesLeft}m left` : 'LIVE';
 
           if (prog.next && prog.next.title) {
             nextTitle = prog.next.title;
+            nextDesc = prog.next.desc || '';
+            nextTag = prog.next.tag || '';
+            nextSubtitle = prog.next.subtitle || '';
             nextTimeRange = `${prog.next.startTimeFormatted || ''} - ${prog.next.endTimeFormatted || ''}`.trim();
             if (prog.next.durationMinutes) {
               nextDuration = `${prog.next.durationMinutes}m`;
@@ -990,6 +1026,9 @@ class PlayerController {
               const upcoming = (currentIdx >= 0 && schedule[currentIdx + 1]) ? schedule[currentIdx + 1] : schedule[1];
               if (upcoming && upcoming.title) {
                 nextTitle = upcoming.title;
+                nextDesc = upcoming.desc || '';
+                nextTag = upcoming.tag || '';
+                nextSubtitle = upcoming.subtitle || '';
                 nextTimeRange = `${upcoming.startTimeFormatted || ''} - ${upcoming.endTimeFormatted || ''}`.trim();
                 if (upcoming.durationMinutes) {
                   nextDuration = `${upcoming.durationMinutes}m`;
@@ -999,6 +1038,9 @@ class PlayerController {
           }
         }
       }
+
+      const isNowExpanded = Boolean(this.sideGuideExpandedIds && this.sideGuideExpandedIds.has(`now-${ch.id}`));
+      const isNextExpanded = Boolean(this.sideGuideExpandedIds && this.sideGuideExpandedIds.has(`next-${ch.id}`));
 
       return `
         <div class="side-guide-card ${isActive ? 'is-active' : ''}" data-channel-id="${ch.id}">
@@ -1033,7 +1075,24 @@ class PlayerController {
                 </span>
                 <span class="side-guide-time-pill">${nowTimeRange}</span>
               </div>
-              <div class="side-guide-prog-title" title="${nowTitle}">${nowTitle}</div>
+              <div class="side-guide-prog-title-row">
+                <div class="side-guide-prog-title" title="${nowTitle}">${nowTitle}</div>
+                <button type="button" class="side-guide-expand-btn ${isNowExpanded ? 'is-expanded' : ''}" data-expand-id="now-${ch.id}" title="${isNowExpanded ? 'Collapse program details' : 'Show description & details'}" aria-expanded="${isNowExpanded ? 'true' : 'false'}" aria-label="Toggle program info">
+                  <svg class="side-guide-expand-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <div class="side-guide-prog-details-drawer ${isNowExpanded ? 'is-open' : ''}" id="details-now-${ch.id}">
+                <div class="side-guide-prog-details-inner">
+                  ${nowSubtitle ? `<div class="side-guide-prog-subtitle">${nowSubtitle}</div>` : ''}
+                  <div class="side-guide-prog-desc">${nowDesc || 'Live television broadcast. No synopsis provided by broadcaster.'}</div>
+                  <div class="side-guide-prog-tags">
+                    ${nowTag ? `<span class="side-guide-tag-badge">${nowTag}</span>` : ''}
+                    ${nowSource ? `<span class="side-guide-source-badge">${nowSource}</span>` : ''}
+                  </div>
+                </div>
+              </div>
               <div class="side-guide-progress-wrap">
                 <div class="side-guide-progress-track">
                   <div class="side-guide-progress-fill" style="width: ${progressPercent}%;"></div>
@@ -1051,7 +1110,23 @@ class PlayerController {
                 </span>
                 <span class="side-guide-time-pill next-time-pill">${nextTimeRange}</span>
               </div>
-              <div class="side-guide-next-title" title="${nextTitle}">${nextTitle}</div>
+              <div class="side-guide-prog-title-row">
+                <div class="side-guide-next-title" title="${nextTitle}">${nextTitle}</div>
+                <button type="button" class="side-guide-expand-btn ${isNextExpanded ? 'is-expanded' : ''}" data-expand-id="next-${ch.id}" title="${isNextExpanded ? 'Collapse program details' : 'Show description & details'}" aria-expanded="${isNextExpanded ? 'true' : 'false'}" aria-label="Toggle next program info">
+                  <svg class="side-guide-expand-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <div class="side-guide-prog-details-drawer ${isNextExpanded ? 'is-open' : ''}" id="details-next-${ch.id}">
+                <div class="side-guide-prog-details-inner">
+                  ${nextSubtitle ? `<div class="side-guide-prog-subtitle">${nextSubtitle}</div>` : ''}
+                  <div class="side-guide-prog-desc">${nextDesc || 'Upcoming scheduled broadcast.'}</div>
+                  <div class="side-guide-prog-tags">
+                    ${nextTag ? `<span class="side-guide-tag-badge">${nextTag}</span>` : ''}
+                  </div>
+                </div>
+              </div>
               ${nextDuration ? `
                 <div class="side-guide-next-meta">
                   <span class="side-guide-next-duration">${nextDuration}</span>
@@ -1068,10 +1143,51 @@ class PlayerController {
       card.addEventListener('click', (e) => {
         if (this.justDraggedSideGuide) return;
         if (e.target.closest('.side-guide-fav-btn')) return;
+        if (e.target.closest('.side-guide-expand-btn')) return;
+        if (e.target.closest('.side-guide-prog-details-drawer')) return;
         const targetId = card.dataset.channelId;
         if (targetId && targetId !== this.currentChannel?.id) {
           this.openPlayer(targetId);
         }
+      });
+    });
+
+    // Attach expandable arrow toggle listeners
+    listEl.querySelectorAll('.side-guide-expand-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.justDraggedSideGuide) return;
+        const expandId = btn.dataset.expandId;
+        if (!expandId) return;
+
+        if (!this.sideGuideExpandedIds) {
+          this.sideGuideExpandedIds = new Set();
+        }
+
+        const isCurrentlyExpanded = this.sideGuideExpandedIds.has(expandId);
+        const drawer = document.getElementById(`details-${expandId}`);
+
+        if (isCurrentlyExpanded) {
+          this.sideGuideExpandedIds.delete(expandId);
+          btn.classList.remove('is-expanded');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.setAttribute('title', 'Show description & details');
+          if (drawer) drawer.classList.remove('is-open');
+        } else {
+          this.sideGuideExpandedIds.add(expandId);
+          btn.classList.add('is-expanded');
+          btn.setAttribute('aria-expanded', 'true');
+          btn.setAttribute('title', 'Collapse program details');
+          if (drawer) drawer.classList.add('is-open');
+        }
+      });
+    });
+
+    // Prevent clicks inside details drawer from propagating to card
+    listEl.querySelectorAll('.side-guide-prog-details-drawer').forEach(drawer => {
+      drawer.addEventListener('click', (e) => {
+        e.stopPropagation();
       });
     });
 
@@ -1156,6 +1272,7 @@ class PlayerController {
     this.currentChannel = channel;
     this.isOpen = true;
     this.engineMode = 'direct'; // Default to pristine direct stream
+    this.fallbackEmbedUrl = '';
 
     // Synchronous User Gesture: prime sound to active using user preference
     if (this.video) {
@@ -1176,21 +1293,18 @@ class PlayerController {
       : '';
     const logoTag = logoSrc
       ? `<img src="${logoSrc}" class="theater-channel-logo" alt="${channel.name}" data-fallback-src="${fallbackUrl}" onerror="if(this.dataset.fallbackSrc && !this.dataset.fallback){this.dataset.fallback='1';this.src=this.dataset.fallbackSrc;}else{this.style.display='none';}">`
-      : '';
+      : `<span style="font-size: 1.15rem; font-weight: 800; color: #ffffff;">${channel.name}</span>`;
     document.getElementById('theater-channel-title').innerHTML = logoTag;
 
-    // Top-left status badges: show prominent USTV badge for U.S. TV channels
+    // Top-left status badges: show USTV badge for U.S. TV channels (no red LIVE pill)
     const statusBadges = document.querySelector('.theater-status-badges');
     if (statusBadges) {
       if (channel.category === 'US TV') {
         statusBadges.innerHTML = `
           <span class="theater-us-pill" title="United States Television Network"><span class="us-flag-icon">🇺🇸</span> USTV</span>
-          <span class="theater-live-pill"><span class="live-pulse-dot" style="width:6px;height:6px;"></span> LIVE HD</span>
         `;
       } else {
-        statusBadges.innerHTML = `
-          <span class="theater-live-pill"><span class="live-pulse-dot" style="width:6px;height:6px;"></span> LIVE</span>
-        `;
+        statusBadges.innerHTML = '';
       }
     }
     // Watch Channel 4 Live direct header button
@@ -1251,9 +1365,9 @@ class PlayerController {
       this.resetControlsTimer(3500);
     }
 
-    // Populate in-player channel switcher and ensure bottom surf drawer is open
+    // Populate the in-player channel switcher and start with it collapsed
     this.renderInPlayerSurfList(channel.category, channel.id);
-    this.toggleSurfDrawer(true);
+    this.toggleSurfDrawer(false);
     if (this.isSideGuideOpen) {
       this.renderSideGuideList();
     }
@@ -1341,6 +1455,7 @@ class PlayerController {
     if (desc) desc.textContent = 'If direct HD playback is slow to connect or throttled by your ISP, switch to the Mirror Player for instant broadcast.';
     if (switchBtn) switchBtn.style.display = 'inline-block';
     if (extBtn) extBtn.style.display = 'inline-block';
+    if (extBtn) extBtn.textContent = '↗ Broadcaster Feed';
     if (guideBtn) guideBtn.style.display = 'none';
     if (retryBtn) {
       retryBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> <span>Retry Direct</span>`;
@@ -1387,7 +1502,6 @@ class PlayerController {
       clearTimeout(this.watchdogTimer);
       this.watchdogTimer = null;
     }
-
 
 
     // If user explicitly chose Mirror Player engine
@@ -1837,9 +1951,10 @@ class PlayerController {
   }
 
   loadEmbedMirror(channelId, customUrl) {
+    const ch = (window.IVTV_DATA && window.IVTV_DATA.channels.find(c => c.id === channelId)) || this.currentChannel;
+
     this.engineMode = 'mirror';
     this.setEngineUI('mirror', 'Mirror Player');
-
     if (this.hls) {
       this.hls.destroy();
       this.hls = null;
@@ -1858,7 +1973,6 @@ class PlayerController {
       this.watchdogTimer = null;
     }
 
-    const ch = (window.IVTV_DATA && window.IVTV_DATA.channels.find(c => c.id === channelId)) || this.currentChannel;
     let embedUrl = customUrl || this.fallbackEmbedUrl || (ch && ch.iframeUrl) || `https://freeshot.live/embed/${channelId}.php`;
 
     // Strictly route external mirrors through the ad-sanitizing reverse proxy (bypass for official Channel 5)
@@ -2705,6 +2819,8 @@ class PlayerController {
       const nonSports = list.filter(c => !isSports(c)).sort((a, b) => (b.viewsNum || 0) - (a.viewsNum || 0));
       const sports = list.filter(c => isSports(c)).sort((a, b) => (b.viewsNum || 0) - (a.viewsNum || 0));
       list = [...nonSports, ...sports].slice(0, 20);
+    } else if (this.surfCategory === 'sky') {
+      list = list.filter(c => this.isSkyChannel(c));
     } else if (this.surfCategory === 'freeview') {
       const fvIds = [
         'bbc-one-uk', 'itv1-uk', 'channel4', 'channel5',
