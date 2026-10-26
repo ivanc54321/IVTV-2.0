@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // AUTO-VERSION CHECK & HARD CACHE PURGE (STANDALONE DESKTOP SYNC)
   // Ensures standalone app window always displays latest code without cache lag
   // ==========================================================================
-  const APP_BUILD_VER = 'v87';
+  const APP_BUILD_VER = 'v88';
   const lastKnownVer = localStorage.getItem('ivtv_client_build_ver');
 
   if (lastKnownVer !== APP_BUILD_VER) {
