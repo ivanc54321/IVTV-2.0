@@ -359,18 +359,25 @@ class PlayerController {
     // Initialize aspect ratio mode
     this.applyAspectRatio(this.aspectRatioMode, false);
 
-    // Channel Surf Drawer Category Filter Pills
+    // Channel Surf Drawer Category Filter Pills (Event Delegation for 100% Reliability)
     const surfCats = document.getElementById('theater-surf-cats');
     if (surfCats) {
-      surfCats.querySelectorAll('.surf-cat-pill').forEach(pill => {
-        pill.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          surfCats.querySelectorAll('.surf-cat-pill').forEach(p => p.classList.remove('active'));
-          pill.classList.add('active');
-          this.surfCategory = pill.dataset.category || 'all';
-          this.renderInPlayerSurfList(this.currentChannel?.category, this.currentChannel?.id);
-        });
+      surfCats.addEventListener('click', (e) => {
+        const pill = e.target.closest('.surf-cat-pill');
+        if (!pill) return;
+        e.preventDefault();
+        e.stopPropagation();
+        surfCats.querySelectorAll('.surf-cat-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        this.surfCategory = pill.dataset.category || 'all';
+        const list = document.getElementById('theater-surf-list');
+        if (list) {
+          list.scrollLeft = 0;
+          if (typeof list.scrollTo === 'function') {
+            try { list.scrollTo({ left: 0, behavior: 'instant' }); } catch (err) { list.scrollLeft = 0; }
+          }
+        }
+        this.renderInPlayerSurfList(this.currentChannel?.category, this.currentChannel?.id);
       });
     }
 
@@ -382,6 +389,13 @@ class PlayerController {
       surfSearch.addEventListener('input', (e) => {
         e.stopPropagation();
         this.surfQuery = e.target.value.toLowerCase().trim();
+        const list = document.getElementById('theater-surf-list');
+        if (list) {
+          list.scrollLeft = 0;
+          if (typeof list.scrollTo === 'function') {
+            try { list.scrollTo({ left: 0, behavior: 'instant' }); } catch (err) { list.scrollLeft = 0; }
+          }
+        }
         this.renderInPlayerSurfList(this.currentChannel?.category, this.currentChannel?.id);
       });
     }
@@ -439,12 +453,14 @@ class PlayerController {
       surfDrawer.addEventListener('wheel', (e) => {
         const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
         if (!delta) return;
+
+        // Isolate wheel events within surf drawer so they never change player volume
         e.stopPropagation();
-        
-        // If cursor is over category pills and pills overflow, scroll pills
+
+        // If cursor is over category pills and pills overflow, scroll pills horizontally
         const catsEl = document.getElementById('theater-surf-cats');
-        if (e.target.closest('#theater-surf-cats') && catsEl && catsEl.scrollWidth > catsEl.clientWidth) {
-          const canPillLeft = catsEl.scrollLeft > 0;
+        if (e.target.closest('#theater-surf-cats') && catsEl && (catsEl.scrollWidth > catsEl.clientWidth + 2)) {
+          const canPillLeft = catsEl.scrollLeft > 1;
           const canPillRight = catsEl.scrollLeft < (catsEl.scrollWidth - catsEl.clientWidth - 2);
           if ((delta < 0 && canPillLeft) || (delta > 0 && canPillRight)) {
             e.preventDefault();
@@ -453,12 +469,30 @@ class PlayerController {
           }
         }
 
-        // Scroll the channel cards list horizontally
-        const canScrollLeft = surfList.scrollLeft > 0;
-        const canScrollRight = surfList.scrollLeft < (surfList.scrollWidth - surfList.clientWidth - 2);
+        // Target track: channel cards list
+        const maxScroll = Math.max(0, surfList.scrollWidth - surfList.clientWidth);
+        if (maxScroll <= 0) return;
+
+        const canScrollLeft = surfList.scrollLeft > 0.5;
+        const canScrollRight = surfList.scrollLeft < (maxScroll - 0.5);
+
         if ((delta < 0 && canScrollLeft) || (delta > 0 && canScrollRight)) {
           e.preventDefault();
-          surfList.scrollLeft += delta * 1.25;
+
+          // Temporarily suspend smooth behavior to prevent animation fighting / queuing
+          if (!surfList._isWheelScrolling) {
+            surfList._isWheelScrolling = true;
+            surfList._origScrollBehavior = surfList.style.scrollBehavior;
+            surfList.style.scrollBehavior = 'auto';
+          }
+
+          surfList.scrollLeft = Math.max(0, Math.min(maxScroll, surfList.scrollLeft + delta * 1.25));
+
+          clearTimeout(surfList._wheelTimeout);
+          surfList._wheelTimeout = setTimeout(() => {
+            surfList._isWheelScrolling = false;
+            surfList.style.scrollBehavior = surfList._origScrollBehavior || '';
+          }, 160);
         }
       }, { passive: false });
     }
@@ -851,6 +885,8 @@ class PlayerController {
     const titleElem = document.getElementById('theater-desc-title');
     const subtitleElem = document.getElementById('theater-desc-subtitle');
     const textElem = document.getElementById('theater-desc-text');
+    const progressWrap = document.getElementById('theater-desc-progress-wrap');
+    const progressFill = document.getElementById('theater-desc-progress-fill');
     const nextRowElem = document.getElementById('theater-desc-next-row');
     const nextTitleElem = document.getElementById('theater-desc-next-title');
 
@@ -860,9 +896,10 @@ class PlayerController {
 
     let title = 'Live Television Broadcast';
     let subtitle = '';
-    let desc = ch.description || 'Live broadcast stream. High definition audio and video.';
+    let desc = ch.description || 'Live broadcast stream in high definition.';
     let timeFormatted = 'Live 24/7';
     let minsLeft = 'LIVE';
+    let progressPercent = null;
     let nextShow = null;
 
     if (window.ivtvEPG) {
@@ -876,10 +913,13 @@ class PlayerController {
           desc = `${prog.subtitle}. Broadcasting in high definition on ${ch.name}.`;
         }
         if (prog.startTimeFormatted && prog.endTimeFormatted) {
-          timeFormatted = `${prog.startTimeFormatted} - ${prog.endTimeFormatted}`;
+          timeFormatted = `${prog.startTimeFormatted} – ${prog.endTimeFormatted}`;
         }
         if (prog.minutesLeft) {
           minsLeft = `${prog.minutesLeft}m left`;
+        }
+        if (typeof prog.progressPercent === 'number') {
+          progressPercent = Math.min(100, Math.max(0, prog.progressPercent));
         }
         nextShow = prog.next;
       }
@@ -893,6 +933,15 @@ class PlayerController {
         subtitleElem.style.display = 'block';
       } else {
         subtitleElem.style.display = 'none';
+      }
+    }
+
+    if (progressWrap && progressFill) {
+      if (progressPercent !== null && progressPercent >= 0) {
+        progressFill.style.width = `${progressPercent}%`;
+        progressWrap.style.display = 'block';
+      } else {
+        progressWrap.style.display = 'none';
       }
     }
 
@@ -2926,6 +2975,16 @@ class PlayerController {
     const surfTrack = document.getElementById('theater-surf-list');
     if (!surfTrack) return;
 
+    // Reset scroll position to 0 on every category / search re-render so scrolling is never locked at the end
+    surfTrack.scrollLeft = 0;
+    if (typeof surfTrack.scrollTo === 'function') {
+      try {
+        surfTrack.scrollTo({ left: 0, behavior: 'instant' });
+      } catch (err) {
+        surfTrack.scrollLeft = 0;
+      }
+    }
+
     const surfBtnLabel = document.getElementById('theater-surf-btn-label');
     if (surfBtnLabel && window.IVTV_DATA?.channels) {
       surfBtnLabel.textContent = `${window.IVTV_DATA.channels.length}`;
@@ -3056,6 +3115,16 @@ class PlayerController {
         </button>
       `;
     }).join('');
+
+    // Immediately reset scroll position so newly rendered category starts at first channel and can scroll right
+    surfTrack.scrollLeft = 0;
+    if (typeof surfTrack.scrollTo === 'function') {
+      try {
+        surfTrack.scrollTo({ left: 0, behavior: 'instant' });
+      } catch (err) {
+        surfTrack.scrollLeft = 0;
+      }
+    }
 
     // Attach click handlers
     surfTrack.querySelectorAll('.surf-channel-item').forEach(item => {

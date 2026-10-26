@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="css/fonts.css?v=40">
   <link rel="stylesheet" href="css/main.css?v=66">
   <link rel="stylesheet" href="css/components.css?v=48">
-  <link rel="stylesheet" href="css/player.css?v=64">
+  <link rel="stylesheet" href="css/player.css?v=66">
   <link rel="stylesheet" href="css/epg.css?v=61">
 
   <!-- HLS.js for Pure Ad-Free Live Stream Playback (Local Zero-Latency with CDN Fallback) -->
@@ -748,18 +748,19 @@
           </div>
         </div>
 
-        <!-- Theater Program Description Overlay (Bottom-Left Hand Corner, Transparent HUD with Text Border) -->
+        <!-- Theater Program Description Overlay (Bottom-Left Corner, Frameless Floating HUD) -->
         <div class="theater-program-desc-hud hidden" id="theater-program-desc-hud" aria-live="polite">
           <div class="theater-desc-hud-inner">
             <div class="theater-desc-top-row">
               <div class="theater-desc-meta-badges">
                 <span class="theater-desc-live-badge"><span class="live-pulse-dot" style="width:6px;height:6px;"></span> LIVE</span>
                 <span class="theater-desc-channel-badge" id="theater-desc-channel-name">Sky Cinema Premiere</span>
-                <span class="theater-desc-time-badge" id="theater-desc-time">19:00 - 21:00</span>
+                <span class="theater-desc-dot-sep">•</span>
+                <span class="theater-desc-time-badge" id="theater-desc-time">19:00 – 21:00</span>
                 <span class="theater-desc-time-remaining" id="theater-desc-mins-left">45m left</span>
               </div>
               <button class="theater-desc-close-btn" id="theater-desc-close-btn" title="Close Description (Esc or I)" aria-label="Close Description">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -767,9 +768,16 @@
             </div>
             <h2 class="theater-desc-title" id="theater-desc-title">Broadcast Programme</h2>
             <div class="theater-desc-subtitle" id="theater-desc-subtitle" style="display: none;">Series 1: Episode 1</div>
+            
+            <!-- Slim Live Broadcast Progress Bar -->
+            <div class="theater-desc-progress-wrap" id="theater-desc-progress-wrap">
+              <div class="theater-desc-progress-fill" id="theater-desc-progress-fill" style="width: 50%;"></div>
+            </div>
+
             <p class="theater-desc-text" id="theater-desc-text">Live television broadcast.</p>
+            
             <div class="theater-desc-next-row" id="theater-desc-next-row" style="display: none;">
-              <span class="theater-desc-next-tag">UP NEXT:</span>
+              <span class="theater-desc-next-tag">UP NEXT</span>
               <span class="theater-desc-next-title" id="theater-desc-next-title">Upcoming Programme</span>
             </div>
           </div>
@@ -1267,9 +1275,9 @@
   <script src="js/auth.js?v=2"></script>
   <script src="js/favorites.js?v=42"></script>
   <script src="js/epg.js?v=40"></script>
-  <script src="js/player.js?v=62"></script>
+  <script src="js/player.js?v=64"></script>
   <script src="js/us-channels.js?v=6"></script>
-  <script src="js/ui.js?v=74"></script>
-  <script src="js/app.js?v=85"></script>
+  <script src="js/ui.js?v=75"></script>
+  <script src="js/app.js?v=87"></script>
 </body>
 </html>

@@ -2310,7 +2310,7 @@ class UIController {
   initCarouselMouseNavigation() {
     // Select all horizontal tracks across home, hero, categories, and player
     const tracks = document.querySelectorAll(
-      '.carousel-track, .ranked-channels-track, #theater-surf-list, #theater-surf-cats, #header-nav-pills, .surf-channel-list, .us-tv-rail-track, #side-guide-categories'
+      '.carousel-track, .ranked-channels-track, #theater-surf-list, #header-nav-pills, .surf-channel-list, .us-tv-rail-track, #side-guide-categories'
     );
     tracks.forEach(track => this.enableHorizontalScrollAndDrag(track));
   }
@@ -2320,53 +2320,57 @@ class UIController {
     track._hasScrollDragInit = true;
 
     const isInsidePlayer = Boolean(track.closest('#theater-modal'));
+    const isTheaterSurf = track.id === 'theater-surf-list' || track.id === 'theater-surf-cats' || track.classList.contains('surf-channel-list');
 
     // 1. Mouse Wheel Scroll -> Responsive, Silk-Smooth Horizontal Scroll
-    const onWheel = (e) => {
-      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-      if (!delta) return;
+    // Note: Theater Quick Surf drawer uses the unified drawer wheel controller in player.js to avoid event conflicts
+    if (!isTheaterSurf) {
+      const onWheel = (e) => {
+        const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+        if (!delta) return;
 
-      if (isInsidePlayer) {
-        // ALWAYS isolate wheel events inside player modal so they never leak to background volume
-        e.stopPropagation();
-      }
-
-      const canScrollLeft = track.scrollLeft > 0;
-      const canScrollRight = track.scrollLeft < (track.scrollWidth - track.clientWidth - 2);
-
-      if ((delta < 0 && canScrollLeft) || (delta > 0 && canScrollRight)) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Temporarily suspend CSS scroll-snap and smooth behavior to prevent animation conflict & stutter
-        if (!track._isWheelScrolling) {
-          track._isWheelScrolling = true;
-          track._origScrollSnap = track.style.scrollSnapType;
-          track._origScrollBehavior = track.style.scrollBehavior;
-          track.style.scrollSnapType = 'none';
-          track.style.scrollBehavior = 'auto';
+        if (isInsidePlayer) {
+          // ALWAYS isolate wheel events inside player modal so they never leak to background volume
+          e.stopPropagation();
         }
 
-        // Apply scroll delta directly for immediate 60/120fps response
-        track.scrollLeft += delta * 1.25;
+        const canScrollLeft = track.scrollLeft > 0;
+        const canScrollRight = track.scrollLeft < (track.scrollWidth - track.clientWidth - 2);
 
-        // Restore CSS scroll snap when user stops scrolling
-        clearTimeout(track._wheelSnapTimeout);
-        track._wheelSnapTimeout = setTimeout(() => {
-          track._isWheelScrolling = false;
-          track.style.scrollSnapType = track._origScrollSnap || '';
-          track.style.scrollBehavior = track._origScrollBehavior || '';
-        }, 160);
+        if ((delta < 0 && canScrollLeft) || (delta > 0 && canScrollRight)) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          // Temporarily suspend CSS scroll-snap and smooth behavior to prevent animation conflict & stutter
+          if (!track._isWheelScrolling) {
+            track._isWheelScrolling = true;
+            track._origScrollSnap = track.style.scrollSnapType;
+            track._origScrollBehavior = track.style.scrollBehavior;
+            track.style.scrollSnapType = 'none';
+            track.style.scrollBehavior = 'auto';
+          }
+
+          // Apply scroll delta directly for immediate 60/120fps response
+          track.scrollLeft += delta * 1.25;
+
+          // Restore CSS scroll snap when user stops scrolling
+          clearTimeout(track._wheelSnapTimeout);
+          track._wheelSnapTimeout = setTimeout(() => {
+            track._isWheelScrolling = false;
+            track.style.scrollSnapType = track._origScrollSnap || '';
+            track.style.scrollBehavior = track._origScrollBehavior || '';
+          }, 160);
+        }
+      };
+
+      track.addEventListener('wheel', onWheel, { passive: false });
+
+      // Also support wheeling on parent track wrapper (covers gaps, padding, and nav buttons)
+      const wrapper = track.closest('.carousel-track-wrapper, .surf-carousel-wrapper');
+      if (wrapper && !wrapper._hasWheelInit) {
+        wrapper._hasWheelInit = true;
+        wrapper.addEventListener('wheel', onWheel, { passive: false });
       }
-    };
-
-    track.addEventListener('wheel', onWheel, { passive: false });
-
-    // Also support wheeling on parent track wrapper (covers gaps, padding, and nav buttons)
-    const wrapper = track.closest('.carousel-track-wrapper, .surf-carousel-wrapper');
-    if (wrapper && !wrapper._hasWheelInit) {
-      wrapper._hasWheelInit = true;
-      wrapper.addEventListener('wheel', onWheel, { passive: false });
     }
 
     // Freeview cards have dedicated drag-and-drop to rearrange
