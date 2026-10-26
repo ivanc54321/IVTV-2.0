@@ -49,6 +49,7 @@ class PlayerController {
     this.sideGuideClockTimer = null;
     this.justDraggedSideGuide = false;
     this.sideGuideExpandedIds = new Set();
+    this.isProgramDescOpen = false;
   }
 
   init() {
@@ -468,6 +469,25 @@ class PlayerController {
       sideGuideBtn.addEventListener('click', () => this.toggleSideGuide());
     }
 
+    // Program Description Toggle Button & Close Button
+    const descBtn = document.getElementById('theater-desc-btn');
+    if (descBtn) {
+      descBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleProgramDesc();
+      });
+    }
+
+    const descCloseBtn = document.getElementById('theater-desc-close-btn');
+    if (descCloseBtn) {
+      descCloseBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleProgramDesc(false);
+      });
+    }
+
     // Side TV Guide Close Button
     const sideGuideCloseBtn = document.getElementById('theater-side-guide-close-btn');
     if (sideGuideCloseBtn) {
@@ -612,6 +632,10 @@ class PlayerController {
         resetControlsTimer(3000);
       }
       if (e.key === 'Escape' && this.isOpen) {
+        if (this.isProgramDescOpen) {
+          this.toggleProgramDesc(false);
+          return;
+        }
         if (this.isSideGuideOpen) {
           this.toggleSideGuide(false);
           return;
@@ -641,6 +665,10 @@ class PlayerController {
       if ((e.key === 'g' || e.key === 'G') && this.isOpen && document.activeElement.tagName !== 'INPUT') {
         e.preventDefault();
         this.toggleSideGuide();
+      }
+      if ((e.key === 'i' || e.key === 'I') && this.isOpen && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        this.toggleProgramDesc();
       }
       if ((e.key === ' ' || e.key === 'k' || e.key === 'K') && this.isOpen) {
         if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'BUTTON')) {
@@ -785,6 +813,100 @@ class PlayerController {
           activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       }, 120);
+    }
+  }
+
+  toggleProgramDesc(forceState) {
+    if (!this.isOpen) return;
+    const descHud = document.getElementById('theater-program-desc-hud');
+    const descBtn = document.getElementById('theater-desc-btn');
+    if (!descHud) return;
+
+    const nextState = (forceState !== undefined) ? forceState : !this.isProgramDescOpen;
+    this.isProgramDescOpen = nextState;
+
+    if (descBtn) {
+      descBtn.classList.toggle('active', nextState);
+      descBtn.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+    }
+
+    if (nextState) {
+      this.updateProgramDescUI(this.currentChannel?.id);
+      descHud.classList.remove('hidden');
+    } else {
+      descHud.classList.add('hidden');
+    }
+  }
+
+  updateProgramDescUI(channelId) {
+    const descHud = document.getElementById('theater-program-desc-hud');
+    if (!descHud) return;
+
+    const ch = this.currentChannel;
+    if (!ch) return;
+
+    const chNameElem = document.getElementById('theater-desc-channel-name');
+    const timeElem = document.getElementById('theater-desc-time');
+    const minsLeftElem = document.getElementById('theater-desc-mins-left');
+    const titleElem = document.getElementById('theater-desc-title');
+    const subtitleElem = document.getElementById('theater-desc-subtitle');
+    const textElem = document.getElementById('theater-desc-text');
+    const nextRowElem = document.getElementById('theater-desc-next-row');
+    const nextTitleElem = document.getElementById('theater-desc-next-title');
+
+    if (chNameElem) {
+      chNameElem.textContent = ch.chNumber ? `CH ${ch.chNumber} • ${ch.name}` : ch.name;
+    }
+
+    let title = 'Live Television Broadcast';
+    let subtitle = '';
+    let desc = ch.description || 'Live broadcast stream. High definition audio and video.';
+    let timeFormatted = 'Live 24/7';
+    let minsLeft = 'LIVE';
+    let nextShow = null;
+
+    if (window.ivtvEPG) {
+      const prog = window.ivtvEPG.getCurrentProgram(channelId || ch.id);
+      if (prog) {
+        title = prog.title || title;
+        subtitle = prog.subtitle || prog.tag || '';
+        if (prog.desc && prog.desc.trim().length > 0 && prog.desc !== prog.subtitle) {
+          desc = prog.desc;
+        } else if (prog.subtitle) {
+          desc = `${prog.subtitle}. Broadcasting in high definition on ${ch.name}.`;
+        }
+        if (prog.startTimeFormatted && prog.endTimeFormatted) {
+          timeFormatted = `${prog.startTimeFormatted} - ${prog.endTimeFormatted}`;
+        }
+        if (prog.minutesLeft) {
+          minsLeft = `${prog.minutesLeft}m left`;
+        }
+        nextShow = prog.next;
+      }
+    }
+
+    if (titleElem) titleElem.textContent = title;
+
+    if (subtitleElem) {
+      if (subtitle) {
+        subtitleElem.textContent = subtitle;
+        subtitleElem.style.display = 'block';
+      } else {
+        subtitleElem.style.display = 'none';
+      }
+    }
+
+    if (textElem) textElem.textContent = desc;
+    if (timeElem) timeElem.textContent = timeFormatted;
+    if (minsLeftElem) minsLeftElem.textContent = minsLeft;
+
+    if (nextRowElem && nextTitleElem) {
+      if (nextShow && nextShow.title) {
+        nextTitleElem.textContent = `${nextShow.title} ${nextShow.startTimeFormatted ? `(${nextShow.startTimeFormatted})` : ''}`;
+        nextRowElem.style.display = 'flex';
+      } else {
+        nextRowElem.style.display = 'none';
+      }
     }
   }
 
@@ -1336,6 +1458,9 @@ class PlayerController {
     this.updateTheaterViewerCount(channel);
     this.updatePlayerFavState();
     this.updatePlayerEPGTicker(channel.id);
+    if (this.isProgramDescOpen) {
+      this.updateProgramDescUI(channel.id);
+    }
     this.updatePlayPauseUI(true);
     this.applyAspectRatio(this.aspectRatioMode, false);
 
@@ -1394,6 +1519,9 @@ class PlayerController {
       } else {
         tickerNext.textContent = 'Stay tuned for upcoming broadcast';
       }
+    }
+    if (this.isProgramDescOpen) {
+      this.updateProgramDescUI(channelId);
     }
   }
 
@@ -2327,6 +2455,7 @@ class PlayerController {
     }
     const popmenu = document.getElementById('theater-popmenu-wrapper');
     if (popmenu) popmenu.classList.remove('open');
+    this.toggleProgramDesc(false);
     this.currentChannel = null;
   }
 
