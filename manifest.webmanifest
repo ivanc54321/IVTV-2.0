@@ -44,6 +44,13 @@
       "description": "Full 24-hour Linear TV Guide",
       "url": "/#epg-section",
       "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "US & HBO Cinema",
+      "short_name": "HBO & Movies",
+      "description": "Watch HBO, Cinemax, and US Movie Channels",
+      "url": "/#us-channels-section",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
