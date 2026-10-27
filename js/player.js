@@ -125,6 +125,27 @@ class PlayerController {
           clearTimeout(this.watchdogTimer);
           this.watchdogTimer = null;
         }
+        const osd = document.getElementById('theater-channel-osd');
+        if (osd && !osd.classList.contains('hidden') && this.osdTimer) {
+          clearTimeout(this.osdTimer);
+          this.osdTimer = setTimeout(() => {
+            osd.classList.add('hidden');
+          }, 3200);
+        }
+      });
+
+      // Synchronize player ticker and active overlay whenever live EPG updates
+      window.addEventListener('ivtv:epg-updated', () => {
+        if (this.currentChannel) {
+          this.updatePlayerEPGTicker(this.currentChannel.id);
+          const osd = document.getElementById('theater-channel-osd');
+          if (osd && !osd.classList.contains('hidden')) {
+            this.showChannelOSD(this.currentChannel);
+          }
+        }
+        if (this.isSideGuideOpen) {
+          this.renderSideGuideList();
+        }
       });
 
       this.video.addEventListener('timeupdate', () => {
@@ -865,6 +886,8 @@ class PlayerController {
     }
 
     if (nextState) {
+      const osd = document.getElementById('theater-channel-osd');
+      if (osd) osd.classList.add('hidden');
       this.updateProgramDescUI(this.currentChannel?.id);
       descHud.classList.remove('hidden');
     } else {
@@ -2690,53 +2713,104 @@ class PlayerController {
 
   showChannelOSD(channel) {
     const osd = document.getElementById('theater-channel-osd');
-    if (!osd) return;
+    if (!osd || !channel) return;
 
-    const logoImg = document.getElementById('osd-channel-logo');
-    const chNum = document.getElementById('osd-channel-num');
     const chName = document.getElementById('osd-channel-name');
-    const category = document.getElementById('osd-category');
     const progTitle = document.getElementById('osd-program-title');
+    const progSub = document.getElementById('osd-program-sub');
+    const progDesc = document.getElementById('osd-program-desc');
     const progTime = document.getElementById('osd-program-time');
+    const timeRemaining = document.getElementById('osd-time-remaining');
+    const progressFill = document.getElementById('osd-progress-fill');
+    const nextRow = document.getElementById('osd-up-next-row');
+    const nextTitle = document.getElementById('osd-next-title');
 
-    const logoSrc = channel.logo || (channel.slug ? `assets/logos/${channel.slug}.png` : '') || channel.logoUrl || '';
-    if (logoImg) {
-      logoImg.src = logoSrc;
-      logoImg.style.display = logoSrc ? 'block' : 'none';
-      const fallbackDomain = window.IVTV_US_TV_LOGO_FALLBACK_DOMAINS?.[channel.id || channel.slug];
-      const fallbackUrl = fallbackDomain
-        ? `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${fallbackDomain}&size=128`
-        : '';
-      logoImg.dataset.fallbackSrc = fallbackUrl;
-      logoImg.onerror = function() {
-        if (this.dataset.fallbackSrc && !this.dataset.fallback) {
-          this.dataset.fallback = '1';
-          this.src = this.dataset.fallbackSrc;
-        } else {
-          this.style.display = 'none';
-        }
-      };
+    if (chName) {
+      chName.textContent = channel.chNumber ? `CH ${channel.chNumber} • ${channel.name}` : channel.name;
     }
-    if (chNum) chNum.textContent = channel.chNumber ? `CH ${channel.chNumber}` : `CH 00`;
-    if (chName) chName.textContent = channel.name;
-    if (category) category.textContent = channel.category;
+
+    let title = 'Live Television Broadcast';
+    let subtitle = '';
+    let desc = channel.description || 'Live broadcast stream in high definition.';
+    let timeFormatted = 'Live 24/7';
+    let minsLeft = 'LIVE';
+    let progressPercent = 50;
+    let nextShow = null;
 
     if (window.ivtvEPG) {
       const prog = window.ivtvEPG.getCurrentProgram(channel.id);
       if (prog) {
-        if (progTitle) progTitle.textContent = prog.title;
-        if (progTime) progTime.textContent = `${prog.startTimeFormatted} - ${prog.endTimeFormatted}`;
-      } else {
-        if (progTitle) progTitle.textContent = 'Ad-Free High Definition Stream';
-        if (progTime) progTime.textContent = '24/7 Live Broadcast';
+        title = prog.title || title;
+        subtitle = prog.subtitle || prog.tag || '';
+        if (prog.desc && prog.desc.trim().length > 0 && prog.desc !== prog.subtitle) {
+          desc = prog.desc;
+        } else if (prog.subtitle) {
+          desc = `${prog.subtitle}. Broadcasting in high definition on ${channel.name}.`;
+        }
+        if (prog.startTimeFormatted && prog.endTimeFormatted) {
+          timeFormatted = `${prog.startTimeFormatted} – ${prog.endTimeFormatted}`;
+        }
+        if (prog.minutesLeft) {
+          minsLeft = `${prog.minutesLeft}m left`;
+        }
+        if (typeof prog.progressPercent === 'number') {
+          progressPercent = Math.min(100, Math.max(0, prog.progressPercent));
+        }
+        nextShow = prog.next;
       }
     }
 
+    if (progTitle) progTitle.textContent = title;
+    if (progSub) {
+      progSub.textContent = subtitle;
+      progSub.style.display = subtitle ? 'block' : 'none';
+    }
+    if (progDesc) progDesc.textContent = desc;
+    if (progTime) progTime.textContent = timeFormatted;
+    if (timeRemaining) timeRemaining.textContent = minsLeft;
+    if (progressFill) progressFill.style.width = `${progressPercent}%`;
+
+    if (nextRow && nextTitle) {
+      if (nextShow) {
+        nextTitle.textContent = `${nextShow.title} (${nextShow.startTimeFormatted})`;
+        nextRow.style.display = 'flex';
+      } else {
+        nextRow.style.display = 'none';
+      }
+    }
+
+    // Dismiss detailed persistent description HUD if open to avoid overlap
+    if (this.isProgramDescOpen) {
+      this.toggleProgramDesc(false);
+    }
+
+    // Show floating WHAT'S PLAYING HUD
     osd.classList.remove('hidden');
+
+    // Auto-hide briefly after 3.8 seconds
     if (this.osdTimer) clearTimeout(this.osdTimer);
     this.osdTimer = setTimeout(() => {
       osd.classList.add('hidden');
-    }, 2800);
+    }, 3800);
+
+    // Hover pauses timer to allow reading; unhover resumes; click dismisses
+    if (!osd._hasOsdListeners) {
+      osd._hasOsdListeners = true;
+      osd.addEventListener('mouseenter', () => {
+        if (this.osdTimer) clearTimeout(this.osdTimer);
+      });
+      osd.addEventListener('mouseleave', () => {
+        if (!osd.classList.contains('hidden')) {
+          this.osdTimer = setTimeout(() => {
+            osd.classList.add('hidden');
+          }, 2000);
+        }
+      });
+      osd.addEventListener('click', () => {
+        if (this.osdTimer) clearTimeout(this.osdTimer);
+        osd.classList.add('hidden');
+      });
+    }
   }
 
   updateTheaterViewerCount(channel) {

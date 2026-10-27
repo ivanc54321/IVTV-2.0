@@ -722,28 +722,31 @@
           frameborder="0">
         </iframe>
 
-        <!-- Broadcast Channel OSD HUD (Appears for 2.5s on channel switch) -->
-        <div class="theater-channel-osd hidden" id="theater-channel-osd">
-          <div class="osd-content">
-            <div class="osd-logo-wrap" id="osd-logo-wrap">
-              <img id="osd-channel-logo" class="osd-channel-logo" src="" alt="Channel Logo">
+        <!-- Broadcast Channel "WHAT'S PLAYING" Floating HUD (Appears briefly on tune/switch, then auto-hides) -->
+        <div class="theater-channel-osd whats-playing-hud hidden" id="theater-channel-osd" aria-live="polite">
+          <div class="theater-desc-hud-inner">
+            <div class="theater-desc-top-row">
+              <div class="theater-desc-meta-badges">
+                <span class="osd-whats-playing-badge"><span class="live-pulse-dot" style="width:6px;height:6px;"></span> WHAT'S PLAYING</span>
+                <span class="theater-desc-channel-badge" id="osd-channel-name">Channel Name</span>
+                <span class="theater-desc-dot-sep">•</span>
+                <span class="theater-desc-time-badge" id="osd-program-time">19:00 – 21:00</span>
+                <span class="theater-desc-time-remaining" id="osd-time-remaining">45m left</span>
+              </div>
             </div>
-            <div class="osd-info">
-              <div class="osd-top-row">
-                <span class="osd-channel-num" id="osd-channel-num">CH 01</span>
-                <span class="osd-channel-name" id="osd-channel-name">Channel Name</span>
-                <span class="osd-live-badge"><span class="live-pulse-dot" style="width:6px;height:6px;"></span> LIVE</span>
-              </div>
-              <div class="osd-meta-row">
-                <span class="osd-category" id="osd-category">Cinema</span>
-                <span class="osd-sep">•</span>
-                <span class="osd-quality" id="osd-quality">1080p HD Direct</span>
-              </div>
-              <div class="osd-now-playing">
-                <span class="osd-now-label">NOW PLAYING:</span>
-                <span class="osd-program-title" id="osd-program-title">Broadcast Programme</span>
-                <span class="osd-program-time" id="osd-program-time">19:00 - 21:00</span>
-              </div>
+            <h2 class="theater-desc-title" id="osd-program-title">Broadcast Programme</h2>
+            <div class="theater-desc-subtitle" id="osd-program-sub" style="display: none;">Series 1: Episode 1</div>
+            
+            <!-- Slim Live Broadcast Progress Bar -->
+            <div class="theater-desc-progress-wrap">
+              <div class="theater-desc-progress-fill" id="osd-progress-fill" style="width: 50%;"></div>
+            </div>
+
+            <p class="theater-desc-text" id="osd-program-desc">Live television broadcast.</p>
+            
+            <div class="theater-desc-next-row" id="osd-up-next-row" style="display: none;">
+              <span class="theater-desc-next-tag">UP NEXT</span>
+              <span class="theater-desc-next-title" id="osd-next-title">Upcoming Programme</span>
             </div>
           </div>
         </div>

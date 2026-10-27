@@ -1845,18 +1845,22 @@ class UIController {
         clockDigits.textContent = `${h}:${m}:${s}`;
       }
 
-      // Update position of red NOW marker line
+      // Update position of red NOW marker line exactly aligned with renderEPG()
       const marker = document.getElementById('epg-now-marker');
       if (marker) {
         const windowStart = new Date(now);
-        if (now.getHours() >= 18) {
-          windowStart.setHours(18, 0, 0, 0);
-        } else {
-          windowStart.setMinutes(0, 0, 0);
-        }
+        windowStart.setHours(Math.max(0, now.getHours() - 1), 0, 0, 0);
         const nowMinutes = (now.getTime() - windowStart.getTime()) / (60 * 1000);
         const nowLeftPx = 240 + Math.round(nowMinutes * (220 / 60));
         marker.style.left = `${nowLeftPx}px`;
+      }
+
+      // Re-render EPG on the hour to advance time slots smoothly if guide is open
+      if (now.getMinutes() === 0 && now.getSeconds() === 0) {
+        const guideModal = document.getElementById('tv-guide-modal');
+        if (guideModal && guideModal.classList.contains('active')) {
+          this.renderEPG();
+        }
       }
     };
 
