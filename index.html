@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="css/fonts.css?v=40">
   <link rel="stylesheet" href="css/main.css?v=66">
   <link rel="stylesheet" href="css/components.css?v=48">
-  <link rel="stylesheet" href="css/player.css?v=67">
+  <link rel="stylesheet" href="css/player.css?v=68">
   <link rel="stylesheet" href="css/epg.css?v=62">
 
   <!-- HLS.js for Pure Ad-Free Live Stream Playback (Local Zero-Latency with CDN Fallback) -->
@@ -813,25 +813,25 @@
         <div class="theater-controls-bar" id="theater-controls-bar">
           <div class="theater-controls-left">
             <!-- Play / Pause Toggle Button -->
-            <button class="theater-action-btn play-pause-btn" id="theater-play-pause-btn" title="Pause Live Stream (Space or K)">
+            <button class="theater-action-btn play-pause-btn expandable-btn" id="theater-play-pause-btn" title="Pause Live Stream (Space or K)" aria-label="Pause Live Stream">
               <span id="theater-play-pause-icon" style="display:inline-flex;align-items:center;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                   <rect x="6" y="4" width="4" height="16" rx="1"/>
                   <rect x="14" y="4" width="4" height="16" rx="1"/>
                 </svg>
               </span>
-              <span id="theater-play-pause-label">Pause</span>
+              <span class="theater-expandable-label" id="theater-play-pause-label">Pause</span>
             </button>
 
-            <!-- Quick Channel Zapper (Prev / Prominent Next) -->
+            <!-- Quick Channel Zapper (Prev / Next) -->
             <div class="theater-zap-group" title="Quick Channel Switch (Up/Down Arrow keys or [ / ])">
-              <button class="theater-action-btn zap-btn zap-prev" id="theater-prev-ch-btn" title="Previous Channel (PageUp or [)">
+              <button class="theater-action-btn zap-btn zap-prev expandable-btn" id="theater-prev-ch-btn" title="Previous Channel (PageUp or [)" aria-label="Previous Channel">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-                <span>Prev</span>
+                <span class="theater-expandable-label">Prev</span>
               </button>
-              <button class="theater-action-btn zap-btn zap-next prominent-next-btn" id="theater-next-ch-btn" title="Next Channel (PageDown or ])">
-                <span>Next</span>
+              <button class="theater-action-btn zap-btn zap-next prominent-next-btn expandable-btn" id="theater-next-ch-btn" title="Next Channel (PageDown or ])" aria-label="Next Channel">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                <span class="theater-expandable-label">Next</span>
               </button>
             </div>
 
@@ -846,25 +846,29 @@
             </div>
 
             <!-- Pop-from-Left TV Guide Toggle Button -->
-            <button class="theater-action-btn side-guide-trigger-btn" id="theater-guide-toggle-btn" title="Toggle Live TV Guide (Press G)">
+            <button class="theater-action-btn side-guide-trigger-btn expandable-btn" id="theater-guide-toggle-btn" title="Toggle Live TV Guide (Press G)" aria-label="Live TV Guide">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
                 <line x1="8" y1="2" x2="8" y2="6"/>
                 <line x1="3" y1="10" x2="21" y2="10"/>
               </svg>
-              <span class="theater-btn-text">TV Guide</span>
-              <kbd class="theater-kbd-pill">G</kbd>
+              <span class="theater-expandable-label">
+                <span class="theater-btn-text">TV Guide</span>
+                <kbd class="theater-kbd-pill">G</kbd>
+              </span>
             </button>
 
             <!-- Toggle Channels Drawer Button (Minimalist with Count Badge) -->
-            <button class="theater-action-btn active" id="theater-surf-toggle-btn" title="Toggle Channel Surf Drawer (C)">
+            <button class="theater-action-btn active expandable-btn" id="theater-surf-toggle-btn" title="Toggle Channel Surf Drawer (C)" aria-label="Channels">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
                 <polyline points="17 2 12 7 7 2"/>
               </svg>
-              <span class="theater-btn-text">Channels</span>
-              <span class="theater-badge-count" id="theater-surf-btn-label">70</span>
+              <span class="theater-expandable-label">
+                <span class="theater-btn-text">Channels</span>
+                <span class="theater-badge-count" id="theater-surf-btn-label">70</span>
+              </span>
             </button>
 
             <!-- Program Description & Synopsis Toggle Button (Icon Only) -->
@@ -878,13 +882,13 @@
             </button>
 
             <!-- Engine Switcher Button (Direct HD vs Mirror Player) -->
-            <button class="theater-action-btn engine-toggle-btn" id="theater-engine-btn" title="Switch between Direct HD and Mirror Player">
+            <button class="theater-action-btn engine-toggle-btn expandable-btn" id="theater-engine-btn" title="Switch between Direct HD and Mirror Player" aria-label="Player Engine">
               <span id="theater-engine-icon" style="display:inline-flex;align-items:center;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                 </svg>
               </span>
-              <span id="theater-engine-label">Direct HD</span>
+              <span class="theater-expandable-label" id="theater-engine-label">Direct HD</span>
             </button>
           </div>
 
@@ -895,14 +899,14 @@
             </button>
 
             <!-- Aspect Ratio Toggle -->
-            <button class="theater-action-btn" id="theater-aspect-btn" title="Aspect Ratio: Stretch / 16:9 / Zoom (A)">
+            <button class="theater-action-btn expandable-btn" id="theater-aspect-btn" title="Aspect Ratio: Stretch / 16:9 / Zoom (A)" aria-label="Aspect Ratio">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="8" x2="22" y2="8"/></svg>
-              <span id="theater-aspect-label">Stretch</span>
+              <span class="theater-expandable-label" id="theater-aspect-label">Stretch</span>
             </button>
 
-            <button class="theater-action-btn theater-hide-controls-btn" id="theater-hide-controls-btn" title="Hide Theater Controls" aria-label="Hide Theater Controls">
+            <button class="theater-action-btn theater-hide-controls-btn expandable-btn" id="theater-hide-controls-btn" title="Hide Theater Controls" aria-label="Hide Theater Controls">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-              <span class="theater-btn-text">Hide</span>
+              <span class="theater-expandable-label">Hide</span>
             </button>
 
             <!-- Dedicated Picture-in-Picture Button -->
@@ -1286,6 +1290,6 @@
   <script src="js/player.js?v=66"></script>
   <script src="js/us-channels.js?v=8"></script>
   <script src="js/ui.js?v=79"></script>
-  <script src="js/app.js?v=90"></script>
+  <script src="js/app.js?v=91"></script>
 </body>
 </html>
