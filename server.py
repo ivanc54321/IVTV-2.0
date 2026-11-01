@@ -1310,6 +1310,7 @@ def _make_proxy_link(full_u, ref=None):
     return link
 
 import subprocess
+import shutil
 
 _TS_TRANSCODE_CACHE = {}
 _TS_TRANSCODE_KEYS = []
@@ -1331,11 +1332,22 @@ def transcode_ts_ac3_to_aac(raw_ts_bytes):
     if not raw_ts_bytes or len(raw_ts_bytes) < 188:
         return raw_ts_bytes
     try:
+        creationflags = 0
+        startupinfo = None
+        if sys.platform == 'win32' or os.name == 'nt':
+            creationflags = getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000)
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = 0  # SW_HIDE
+
+        ffmpeg_cmd = shutil.which('ffmpeg') or 'ffmpeg'
         proc = subprocess.Popen(
-            ['ffmpeg', '-v', 'error', '-i', 'pipe:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-ac', '2', '-f', 'mpegts', 'pipe:1'],
+            [ffmpeg_cmd, '-v', 'error', '-i', 'pipe:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-ac', '2', '-f', 'mpegts', 'pipe:1'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
+            creationflags=creationflags,
+            startupinfo=startupinfo
         )
         out, _ = proc.communicate(input=raw_ts_bytes, timeout=4)
         if out and len(out) > 500:
