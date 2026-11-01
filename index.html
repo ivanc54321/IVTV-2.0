@@ -151,6 +151,17 @@
                   <span class="nav-burger-hint">Press G</span>
                 </div>
               </button>
+              <button class="nav-burger-item" id="burger-refresh-guide-btn" role="menuitem">
+                <span class="nav-burger-icon">
+                  <svg id="burger-refresh-guide-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                  </svg>
+                </span>
+                <div class="nav-burger-text">
+                  <span class="nav-burger-label">Refresh TV Guide</span>
+                  <span class="nav-burger-hint">Update if inaccurate</span>
+                </div>
+              </button>
               <button class="nav-burger-item" data-nav="favorites" role="menuitem">
                 <span class="nav-burger-icon" style="color: var(--accent-gold);">★</span>
                 <div class="nav-burger-text">
@@ -611,6 +622,11 @@
             </div>
             <div class="side-guide-header-actions">
               <div class="side-guide-clock" id="side-guide-clock">--:--:--</div>
+              <button class="side-guide-refresh-btn" id="theater-side-guide-refresh-btn" title="Refresh Live TV Guide &amp; Broadcast Schedules (R)" aria-label="Refresh TV Guide">
+                <svg id="theater-side-guide-refresh-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                </svg>
+              </button>
               <button class="theater-close-btn side-guide-close-btn" id="theater-side-guide-close-btn" title="Close TV Guide (Esc or G)" aria-label="Close TV Guide">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1034,11 +1050,11 @@
             <span id="epg-clock-digits">--:--:--</span>
             <span class="epg-clock-badge">LIVE UK</span>
           </div>
-          <button class="theater-action-btn" id="epg-sync-btn" title="Sync live TV guide with latest Freeview & Sky listings" style="padding: 0.35rem 0.8rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.4rem; border-radius: 9999px;">
+          <button class="theater-action-btn epg-refresh-action-btn" id="epg-sync-btn" title="Refresh &amp; Update Live TV Guide with real-time Freeview &amp; Sky broadcast listings (Press R if inaccurate)" style="padding: 0.35rem 0.85rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.45rem; border-radius: 9999px;">
             <svg id="epg-sync-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
             </svg>
-            <span id="epg-sync-text">Sync Guide</span>
+            <span id="epg-sync-text">Refresh Guide</span>
           </button>
           <button class="theater-close-btn" id="tv-guide-modal-close-btn" title="Close TV Guide (Esc)">✕</button>
         </div>
@@ -1063,6 +1079,15 @@
           <span style="display:inline-flex; align-items:center; gap: 0.35rem;">
             <span style="display:inline-block; width:8px; height:8px; background:#ff5252; border-radius:50%; box-shadow:0 0 6px #ff5252;"></span>
             Red marker indicates real-time broadcast
+          </span>
+          <span style="opacity: 0.4;">•</span>
+          <span id="epg-last-sync-badge" style="display:inline-flex; align-items:center; gap: 0.35rem; color: rgba(255,255,255,0.7); font-size: 0.78rem;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span id="epg-last-sync-text">Live Broadcast Feed</span>
+          </span>
+          <span style="opacity: 0.4;">•</span>
+          <span style="display:inline-flex; align-items:center; gap: 0.35rem; color: rgba(255,255,255,0.45); font-size: 0.75rem;">
+            Press <kbd style="background:rgba(255,255,255,0.1); padding:1px 5px; border-radius:3px; font-family:monospace; color:#00ff88;">R</kbd> to update if inaccurate
           </span>
         </div>
       </div>
@@ -1098,12 +1123,20 @@
         <span id="epg-modal-time">19:00 - 20:30</span>
       </div>
       <p class="epg-modal-desc" id="epg-modal-desc">Program description goes here...</p>
-      <div class="epg-modal-actions">
-        <button class="btn-secondary-glass" id="epg-modal-dismiss-btn" style="padding: 0.5rem 1rem;">Close</button>
-        <button class="btn-primary-play" id="epg-modal-watch-btn" style="padding: 0.5rem 1.25rem;">
-          <svg width="15" height="15" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <span id="epg-modal-action-text">Watch Live</span>
+      <div class="epg-modal-actions" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 0.75rem;">
+        <button class="btn-secondary-glass" id="epg-modal-refresh-btn" title="Listings not matching what's playing? Click to refresh broadcast schedule from Freeview &amp; Sky" style="padding: 0.5rem 0.85rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.45rem;">
+          <svg id="epg-modal-refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+          </svg>
+          <span id="epg-modal-refresh-text">Refresh Guide</span>
         </button>
+        <div style="display: flex; gap: 0.75rem; align-items: center; margin-left: auto;">
+          <button class="btn-secondary-glass" id="epg-modal-dismiss-btn" style="padding: 0.5rem 1rem;">Close</button>
+          <button class="btn-primary-play" id="epg-modal-watch-btn" style="padding: 0.5rem 1.25rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span id="epg-modal-action-text">Watch Live</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

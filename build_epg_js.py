@@ -26,9 +26,31 @@ class EPGManager {{
   constructor() {{
     this.schedules = {{ ...LIVE_EPG_SEED }};
     this.isLiveLoaded = false;
+    this.isRefreshing = false;
+    this.lastRefreshed = null;
+    this.lastRefreshedFormatted = '';
     this.refreshTimer = null;
+    this.initFromLocalStorage();
     this.fetchLiveEPG();
     this.initAutoRefresh();
+  }}
+
+  initFromLocalStorage() {{
+    try {{
+      if (typeof localStorage !== 'undefined') {{
+        const saved = localStorage.getItem('ivtv_live_epg_cache_v2');
+        if (saved) {{
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.channels) {{
+            this.schedules = {{ ...this.schedules, ...parsed.channels }};
+            if (parsed.timestamp) {{
+              this.lastRefreshed = new Date(parsed.timestamp);
+              this.lastRefreshedFormatted = this.lastRefreshed.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
+            }}
+          }}
+        }}
+      }}
+    }} catch (e) {{}}
   }}
 
   initAutoRefresh() {{
@@ -50,9 +72,12 @@ class EPGManager {{
   // Asynchronously fetch live listings from local daemon API
   async fetchLiveEPG(force = false) {{
     if (typeof window === 'undefined' || !window.location) return false;
+    if (this.isRefreshing && force) return false;
+    if (force) this.isRefreshing = true;
+
     try {{
-      const url = force ? '/api/epg?refresh=1' : '/api/epg';
-      const resp = await fetch(url);
+      const url = force ? `/api/epg/refresh?_t=${{Date.now()}}` : '/api/epg';
+      const resp = await fetch(url, {{ cache: force ? 'no-store' : 'default' }});
       if (resp.ok) {{
         const data = await resp.json();
         if (data && data.channels) {{
@@ -68,7 +93,7 @@ class EPGManager {{
                 end: s.end,
                 startHour: s.startHour,
                 startMin: s.startMin,
-                duration: s.durationMinutes,
+                duration: s.durationMinutes || s.duration,
                 tag: s.tag,
                 desc: s.desc,
                 isMovie: s.isMovie || false,
@@ -81,17 +106,46 @@ class EPGManager {{
           }}
           this.schedules = {{ ...this.schedules, ...mapped }};
           this.isLiveLoaded = true;
-          window.dispatchEvent(new CustomEvent('ivtv:epg-updated', {{ detail: {{ source: 'api' }} }}));
-          return true;
+          this.lastRefreshed = new Date();
+          this.lastRefreshedFormatted = this.lastRefreshed.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
+
+          try {{
+            if (typeof localStorage !== 'undefined') {{
+              localStorage.setItem('ivtv_live_epg_cache_v2', JSON.stringify({{
+                timestamp: Date.now(),
+                channels: mapped
+              }}));
+            }}
+          }} catch (e) {{}}
+
+          const channelCount = Object.keys(mapped).length;
+          window.dispatchEvent(new CustomEvent('ivtv:epg-updated', {{
+            detail: {{
+              source: 'api',
+              force: force,
+              count: channelCount,
+              refreshedAt: this.lastRefreshed,
+              formattedTime: this.lastRefreshedFormatted
+            }}
+          }}));
+
+          // If the server reported it is updating in background, schedule a fast follow-up
+          if (data.updating && !force) {{
+            setTimeout(() => this.fetchLiveEPG(false), 2500);
+          }}
+
+          return {{ success: true, count: channelCount, timestamp: this.lastRefreshed }};
         }}
       }}
     }} catch (e) {{
       console.warn('[IVTV EPG] Local /api/epg fetch notice (using preloaded real seed):', e);
+    }} finally {{
+      this.isRefreshing = false;
     }}
     return false;
   }}
 
-  // Triggered by UI Sync Guide button
+  // Triggered by UI Refresh / Update Guide button
   async refreshLiveEPG() {{
     return await this.fetchLiveEPG(true);
   }}
@@ -162,22 +216,14 @@ class EPGManager {{
     baseDay.setHours(0, 0, 0, 0);
     const baseMidnightMs = baseDay.getTime();
 
-    // Check if the shows contain epoch timestamps that match today's date
-    let isCurrentDayEpoch = false;
-    const firstEpoch = shows.find(s => s && s.epochStart);
-    if (firstEpoch && firstEpoch.epochStart) {{
-      const d = new Date(firstEpoch.epochStart * 1000);
-      if (d.getFullYear() === baseDay.getFullYear() &&
-          d.getMonth() === baseDay.getMonth() &&
-          d.getDate() === baseDay.getDate()) {{
-        isCurrentDayEpoch = true;
-      }}
-    }}
+    // Check if shows contain authentic epoch timestamps aligned with reference window (+/- 36 hours)
+    const refMs = referenceDate.getTime();
+    const hasValidEpochs = shows.some(s => s && s.epochStart && Math.abs((s.epochStart * 1000) - refMs) < 36 * 3600 * 1000);
 
     const generated = [];
 
-    if (isCurrentDayEpoch) {{
-      // Use authentic current day epoch timestamps
+    if (hasValidEpochs) {{
+      // Use authentic current epoch timestamps
       for (let i = 0; i < shows.length; i++) {{
         const s = shows[i];
         let start, end;

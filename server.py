@@ -1203,8 +1203,19 @@ def get_epg_data(channel_id=None, force_refresh=False):
                 with open(cache_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2)
                 if channel_id and channel_id in data.get('channels', {}):
-                    return {"status": "success", "channel": data['channels'][channel_id], "updated": True}
-                return data
+                    return {
+                        "status": "success",
+                        "channel": data['channels'][channel_id],
+                        "updated": True,
+                        "refreshed_at": int(now),
+                        "refreshed_time": datetime.datetime.now().strftime('%H:%M:%S')
+                    }
+                res = dict(data)
+                res["updated"] = True
+                res["refreshed_at"] = int(now)
+                res["refreshed_time"] = datetime.datetime.now().strftime('%H:%M:%S')
+                res["channels_count"] = len(data.get('channels', {}))
+                return res
         except Exception as e:
             print(f"[EPG] Force refresh warning: {e}")
 
@@ -2023,15 +2034,16 @@ class IVTVRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(result)
             return
 
-        # API EPG Listings Endpoint: /api/epg
-        if parsed.path == '/api/epg':
+        # API EPG Listings Endpoint: /api/epg and /api/epg/refresh
+        if parsed.path in ['/api/epg', '/api/epg/refresh']:
             params = urllib.parse.parse_qs(parsed.query)
             channel_id = params.get('channel', [None])[0]
-            force = params.get('refresh', ['0'])[0] in ['1', 'true', 'yes']
+            force = (parsed.path == '/api/epg/refresh') or (params.get('refresh', ['0'])[0] in ['1', 'true', 'yes'])
             data = get_epg_data(channel_id, force_refresh=force)
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.send_header('Cache-Control', 'no-cache' if force else 'public, max-age=120')
+            self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' if force else 'public, max-age=120')
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps(data).encode('utf-8'))
             return

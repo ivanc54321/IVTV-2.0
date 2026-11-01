@@ -2006,6 +2006,27 @@
   letter-spacing: 0.04em;
 }
 
+.side-guide-refresh-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.side-guide-refresh-btn:hover {
+  background: rgba(0, 240, 118, 0.2);
+  border-color: rgba(0, 240, 118, 0.5);
+  color: var(--accent-neon, #00ff88);
+  transform: scale(1.08);
+}
+
 .side-guide-close-btn {
   width: 28px;
   height: 28px;

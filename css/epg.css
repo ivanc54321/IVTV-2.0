@@ -681,3 +681,43 @@
 .rotating {
   animation: epg-spin 0.8s linear infinite;
 }
+
+.epg-refresh-action-btn {
+  background: rgba(0, 240, 118, 0.12);
+  border: 1px solid rgba(0, 240, 118, 0.35);
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 10px rgba(0, 240, 118, 0.1);
+}
+
+.epg-refresh-action-btn:hover {
+  background: rgba(0, 240, 118, 0.22);
+  border-color: rgba(0, 240, 118, 0.6);
+  color: var(--accent-neon, #00ff88);
+  box-shadow: 0 4px 18px rgba(0, 240, 118, 0.25);
+  transform: translateY(-1px);
+}
+
+.epg-refresh-action-btn:disabled,
+.side-guide-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+#epg-modal-refresh-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#epg-modal-refresh-btn:hover {
+  background: rgba(0, 240, 118, 0.15);
+  border-color: rgba(0, 240, 118, 0.4);
+  color: var(--accent-neon, #00ff88);
+}

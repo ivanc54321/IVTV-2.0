@@ -1786,17 +1786,112 @@ class UIController {
       };
     }
 
+    this.activeDetailProgId = progId;
+    this.activeDetailChannelId = channelId;
     modal.classList.add('active');
   }
 
   hideProgramDetails() {
+    this.activeDetailProgId = null;
+    this.activeDetailChannelId = null;
     const modal = document.getElementById('epg-details-modal');
     if (modal) modal.classList.remove('active');
   }
 
   // ==========================================================================
-  // DEDICATED TV GUIDE MODAL CONTROLLERS
+  // DEDICATED TV GUIDE MODAL CONTROLLERS & REAL-TIME REFRESH
   // ==========================================================================
+
+  async refreshTVGuide(silent = false) {
+    if (!window.ivtvEPG) return;
+
+    const syncBtn = document.getElementById('epg-sync-btn');
+    const syncIcon = document.getElementById('epg-sync-icon');
+    const syncText = document.getElementById('epg-sync-text');
+
+    const sideGuideBtn = document.getElementById('theater-side-guide-refresh-btn');
+    const sideGuideIcon = document.getElementById('theater-side-guide-refresh-icon');
+
+    const modalRefreshBtn = document.getElementById('epg-modal-refresh-btn');
+    const modalRefreshIcon = document.getElementById('epg-modal-refresh-icon');
+    const modalRefreshText = document.getElementById('epg-modal-refresh-text');
+
+    const burgerRefreshIcon = document.getElementById('burger-refresh-guide-icon');
+    const syncBadgeText = document.getElementById('epg-last-sync-text');
+
+    if (syncIcon) syncIcon.classList.add('rotating');
+    if (sideGuideIcon) sideGuideIcon.classList.add('rotating');
+    if (modalRefreshIcon) modalRefreshIcon.classList.add('rotating');
+    if (burgerRefreshIcon) burgerRefreshIcon.classList.add('rotating');
+
+    if (syncText) syncText.textContent = 'Updating...';
+    if (modalRefreshText) modalRefreshText.textContent = 'Updating...';
+    if (syncBadgeText) syncBadgeText.textContent = 'Fetching fresh broadcast schedules...';
+
+    if (syncBtn) syncBtn.disabled = true;
+    if (sideGuideBtn) sideGuideBtn.disabled = true;
+    if (modalRefreshBtn) modalRefreshBtn.disabled = true;
+
+    try {
+      const res = await window.ivtvEPG.refreshLiveEPG();
+      const count = (res && res.count) || 106;
+      const timeStr = (res && res.formattedTime) || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (syncText) syncText.textContent = 'Updated ✓';
+      if (modalRefreshText) modalRefreshText.textContent = 'Updated ✓';
+      if (syncBadgeText) syncBadgeText.textContent = `Updated ${timeStr} (${count} Channels Live)`;
+
+      if (!silent) {
+        this.showToast(`TV Guide updated: ${count} channels refreshed from Freeview & Sky`, 'success');
+      }
+
+      // Re-render Guide modal if open
+      const guideModal = document.getElementById('tv-guide-modal');
+      if (guideModal && guideModal.classList.contains('active')) {
+        this.renderEPG();
+      }
+
+      // Re-render Side Guide if open
+      if (window.ivtvPlayer && window.ivtvPlayer.isSideGuideOpen) {
+        window.ivtvPlayer.renderSideGuideList();
+      }
+
+      // Update Player Ticker if channel active
+      if (window.ivtvPlayer && window.ivtvPlayer.currentChannel) {
+        window.ivtvPlayer.updatePlayerEPGTicker(window.ivtvPlayer.currentChannel.id);
+      }
+
+      // Update program details popup if currently open
+      if (this.activeDetailChannelId) {
+        this.showProgramDetails(this.activeDetailProgId, this.activeDetailChannelId);
+      }
+
+      this.renderTopRanked();
+      this.renderCategorySections();
+    } catch (err) {
+      console.error('[IVTV UI] Refresh EPG error:', err);
+      if (syncText) syncText.textContent = 'Refresh Failed';
+      if (modalRefreshText) modalRefreshText.textContent = 'Refresh Failed';
+      if (syncBadgeText) syncBadgeText.textContent = 'Sync issue (using saved guide)';
+      if (!silent) {
+        this.showToast('Could not reach live broadcast servers. Using saved schedule.', 'error');
+      }
+    } finally {
+      setTimeout(() => {
+        if (syncIcon) syncIcon.classList.remove('rotating');
+        if (sideGuideIcon) sideGuideIcon.classList.remove('rotating');
+        if (modalRefreshIcon) modalRefreshIcon.classList.remove('rotating');
+        if (burgerRefreshIcon) burgerRefreshIcon.classList.remove('rotating');
+
+        if (syncText) syncText.textContent = 'Refresh Guide';
+        if (modalRefreshText) modalRefreshText.textContent = 'Refresh Guide';
+
+        if (syncBtn) syncBtn.disabled = false;
+        if (sideGuideBtn) sideGuideBtn.disabled = false;
+        if (modalRefreshBtn) modalRefreshBtn.disabled = false;
+      }, 2000);
+    }
+  }
 
   openTVGuide() {
     const modal = document.getElementById('tv-guide-modal');
@@ -2232,42 +2327,47 @@ class UIController {
       });
     }
 
-    // TV Guide On-Demand Live Sync Button
+    // TV Guide On-Demand Live Refresh Buttons (Main Guide, Side Guide, Details Modal, Burger Menu)
     const epgSyncBtn = document.getElementById('epg-sync-btn');
     if (epgSyncBtn) {
-      epgSyncBtn.addEventListener('click', async () => {
-        const icon = document.getElementById('epg-sync-icon');
-        const text = document.getElementById('epg-sync-text');
-        if (icon) icon.classList.add('rotating');
-        if (text) text.textContent = 'Syncing...';
-        epgSyncBtn.disabled = true;
+      epgSyncBtn.addEventListener('click', () => this.refreshTVGuide());
+    }
 
-        try {
-          if (window.ivtvEPG && typeof window.ivtvEPG.refreshLiveEPG === 'function') {
-            await window.ivtvEPG.refreshLiveEPG();
-          }
-          if (text) text.textContent = 'Synced ✓';
-          this.showToast('TV Guide updated with latest live broadcast schedules', 'success');
-        } catch (err) {
-          if (text) text.textContent = 'Sync Failed';
-          this.showToast('Failed to refresh TV guide', 'error');
-        } finally {
-          setTimeout(() => {
-            if (icon) icon.classList.remove('rotating');
-            if (text) text.textContent = 'Sync Guide';
-            epgSyncBtn.disabled = false;
-          }, 2000);
-        }
+    const sideGuideRefreshBtn = document.getElementById('theater-side-guide-refresh-btn');
+    if (sideGuideRefreshBtn) {
+      sideGuideRefreshBtn.addEventListener('click', () => this.refreshTVGuide());
+    }
+
+    const modalRefreshBtn = document.getElementById('epg-modal-refresh-btn');
+    if (modalRefreshBtn) {
+      modalRefreshBtn.addEventListener('click', () => this.refreshTVGuide());
+    }
+
+    const burgerRefreshBtn = document.getElementById('burger-refresh-guide-btn');
+    if (burgerRefreshBtn) {
+      burgerRefreshBtn.addEventListener('click', () => {
+        this.closeBurgerMenu();
+        this.refreshTVGuide();
       });
     }
 
-    // Keyboard shortcuts for TV Guide
+    // Keyboard shortcuts for TV Guide & Listings Refresh
     window.addEventListener('keydown', (e) => {
       if ((e.key === 'g' || e.key === 'G') && document.activeElement.tagName !== 'INPUT' && (!window.ivtvPlayer || !window.ivtvPlayer.isOpen)) {
         this.toggleTVGuide();
       }
       if (e.key === 'Escape' && guideModal && guideModal.classList.contains('active')) {
         this.closeTVGuide();
+      }
+      // Press 'R' when TV Guide, Side Guide, or Program Details is open to force refresh
+      if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+        const isGuideActive = guideModal && guideModal.classList.contains('active');
+        const isSideGuideActive = window.ivtvPlayer && window.ivtvPlayer.isSideGuideOpen;
+        const isDetailsActive = document.getElementById('epg-details-modal')?.classList.contains('active');
+        if (isGuideActive || isSideGuideActive || isDetailsActive) {
+          e.preventDefault();
+          this.refreshTVGuide();
+        }
       }
     });
 

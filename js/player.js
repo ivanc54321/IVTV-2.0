@@ -549,6 +549,20 @@ class PlayerController {
       sideGuideCloseBtn.addEventListener('click', () => this.toggleSideGuide(false));
     }
 
+    // Side TV Guide Refresh Button (Force real-time broadcast listings sync)
+    const sideGuideRefreshBtn = document.getElementById('theater-side-guide-refresh-btn');
+    if (sideGuideRefreshBtn) {
+      sideGuideRefreshBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.UIControllerInstance && typeof window.UIControllerInstance.refreshTVGuide === 'function') {
+          window.UIControllerInstance.refreshTVGuide();
+        } else if (window.ivtvEPG && typeof window.ivtvEPG.refreshLiveEPG === 'function') {
+          window.ivtvEPG.refreshLiveEPG();
+        }
+      });
+    }
+
     // Side TV Guide Category Filter Pills
     const sideGuideCats = document.getElementById('side-guide-categories');
     if (sideGuideCats) {
@@ -720,6 +734,12 @@ class PlayerController {
       if ((e.key === 'g' || e.key === 'G') && this.isOpen && document.activeElement.tagName !== 'INPUT') {
         e.preventDefault();
         this.toggleSideGuide();
+      }
+      if ((e.key === 'r' || e.key === 'R') && this.isOpen && this.isSideGuideOpen && document.activeElement.tagName !== 'INPUT' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        if (window.UIControllerInstance && typeof window.UIControllerInstance.refreshTVGuide === 'function') {
+          window.UIControllerInstance.refreshTVGuide();
+        }
       }
       if ((e.key === 'i' || e.key === 'I') && this.isOpen && document.activeElement.tagName !== 'INPUT') {
         e.preventDefault();
