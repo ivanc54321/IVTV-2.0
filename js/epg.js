@@ -39211,7 +39211,7 @@ class EPGManager {
     if (force) this.isRefreshing = true;
 
     try {
-      const url = force ? `/api/epg/refresh?_t=${Date.now()}` : '/api/epg';
+      const url = force ? `/api/epg?refresh=1&_t=${Date.now()}` : '/api/epg';
       const resp = await fetch(url, { cache: force ? 'no-store' : 'default' });
       if (resp.ok) {
         const data = await resp.json();
