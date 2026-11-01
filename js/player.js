@@ -1169,6 +1169,14 @@ class PlayerController {
       });
     }
 
+    // Put sports channels on the bottom of the TV Guide
+    if (this.sideGuideCategory !== 'Sports') {
+      const isSports = (c) => (c.category || '').toLowerCase() === 'sports';
+      const nonSports = channels.filter(c => !isSports(c));
+      const sports = channels.filter(c => isSports(c));
+      channels = [...nonSports, ...sports];
+    }
+
     if (counterEl) {
       counterEl.textContent = `${channels.length} ${channels.length === 1 ? 'Guide' : 'Guides'}`;
     }

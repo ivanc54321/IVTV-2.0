@@ -169,6 +169,13 @@
                   <span class="nav-burger-hint">Watchlist</span>
                 </div>
               </button>
+              <button class="nav-burger-item" id="burger-fav-guide-btn" role="menuitem">
+                <span class="nav-burger-icon" style="color: var(--accent-gold);">★</span>
+                <div class="nav-burger-text">
+                  <span class="nav-burger-label">Favorites TV Guide</span>
+                  <span class="nav-burger-hint">Personal schedule</span>
+                </div>
+              </button>
               <div class="nav-burger-divider"></div>
               <button class="nav-burger-item" id="nav-burger-account-btn" role="menuitem">
                 <span class="nav-burger-icon" style="color: var(--accent-neon, #00ff88);">👤</span>
@@ -647,11 +654,11 @@
           <!-- Category Filter Pills -->
           <div class="side-guide-categories" id="side-guide-categories">
             <button class="side-guide-cat-btn active" data-category="all">All</button>
-            <button class="side-guide-cat-btn" data-category="Sports">🏆 Sports</button>
-            <button class="side-guide-cat-btn" data-category="Cinema">🍿 Cinema</button>
-            <button class="side-guide-cat-btn" data-category="Entertainment">🎬 Entertainment</button>
-            <button class="side-guide-cat-btn" data-category="News">📡 News</button>
             <button class="side-guide-cat-btn" data-category="Favorites">★ Favorites</button>
+            <button class="side-guide-cat-btn" data-category="Entertainment">🎬 Entertainment</button>
+            <button class="side-guide-cat-btn" data-category="Cinema">🍿 Cinema</button>
+            <button class="side-guide-cat-btn" data-category="News">📡 News</button>
+            <button class="side-guide-cat-btn" data-category="Sports">🏆 Sports</button>
           </div>
         </div>
 
@@ -1064,11 +1071,12 @@
       <div class="epg-top-bar">
         <div class="epg-category-filters" id="epg-category-filters">
           <button class="epg-filter-btn active" data-category="all">All Channels (90)</button>
+          <button class="epg-filter-btn" data-category="Favorites">★ Favorites (<span id="epg-fav-count">0</span>)</button>
+          <button class="epg-filter-btn" data-category="Entertainment">🎬 Entertainment (16)</button>
+          <button class="epg-filter-btn" data-category="Cinema">🍿 Cinema (11)</button>
+          <button class="epg-filter-btn" data-category="News">📡 News (4)</button>
           <button class="epg-filter-btn" data-category="US-TV">🇺🇸 US &amp; HBO (45)</button>
           <button class="epg-filter-btn" data-category="Sports">🏆 Sports (14)</button>
-          <button class="epg-filter-btn" data-category="Cinema">🍿 Cinema (11)</button>
-          <button class="epg-filter-btn" data-category="Entertainment">🎬 Entertainment (16)</button>
-          <button class="epg-filter-btn" data-category="News">📡 News (4)</button>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
           <span style="display:inline-flex; align-items:center; gap: 0.35rem; color: var(--accent-neon, #00ff88); font-weight: 500;">

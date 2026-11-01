@@ -1643,13 +1643,36 @@ class UIController {
       isUS: true
     }));
 
+    const favIds = window.ivtvStorage ? window.ivtvStorage.getFavorites() : [];
+    const favCountEl = document.getElementById('epg-fav-count');
+    if (favCountEl) favCountEl.textContent = favIds.length;
+
     let channels;
-    if (this.activeEPGCategory === 'US-TV') {
+    if (this.activeEPGCategory === 'Favorites') {
+      const combined = [...ukChannels, ...usChannels];
+      channels = combined.filter(c => favIds.includes(c.id));
+    } else if (this.activeEPGCategory === 'US-TV') {
       channels = usChannels;
     } else if (this.activeEPGCategory && this.activeEPGCategory !== 'all') {
       channels = ukChannels.filter(c => c.category === this.activeEPGCategory);
     } else {
       channels = [...ukChannels, ...usChannels];
+    }
+
+    // Helper to identify sports channels (UK sports, US sports rails, etc.)
+    const isSportsChannel = (c) => {
+      const cat = (c.category || '').toLowerCase();
+      const sub = (c.subCategory || '').toLowerCase();
+      const genre = (c.genre || '').toLowerCase();
+      const name = (c.name || '').toLowerCase();
+      return cat === 'sports' || sub.includes('sport') || genre.includes('sport') || name.includes('sports');
+    };
+
+    // Requirement: Put sports channels on the bottom of the TV Guide
+    if (this.activeEPGCategory !== 'Sports') {
+      const nonSports = channels.filter(c => !isSportsChannel(c));
+      const sports = channels.filter(c => isSportsChannel(c));
+      channels = [...nonSports, ...sports];
     }
 
     // Calculate NOW line offset (240px channel column + minute progress)
@@ -1674,6 +1697,17 @@ class UIController {
       <div class="epg-now-marker-line" id="epg-now-marker" style="left: ${nowLeftPx}px;"></div>
     `;
 
+    if (channels.length === 0 && this.activeEPGCategory === 'Favorites') {
+      html += `
+        <div class="epg-empty-favorites">
+          <div style="font-size: 2.2rem; margin-bottom: 0.65rem; color: #ffcc00;">★</div>
+          <h3 style="color: #ffffff; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.45rem;">No Favorite Channels Saved</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 440px; margin: 0 auto 1.5rem auto; line-height: 1.5;">Click the star icon (★) in the channel column or on homepage cards to build your personalized TV Guide schedule.</p>
+          <button class="theater-action-btn" onclick="window.UIControllerInstance.filterEPG('all')" style="margin: 0 auto; padding: 0.5rem 1.25rem; border-radius: 9999px; background: rgba(0, 240, 118, 0.15); border: 1px solid rgba(0, 240, 118, 0.4); color: var(--accent-neon, #00ff88); cursor: pointer;">Browse All Channels</button>
+        </div>
+      `;
+    }
+
     html += channels.map(ch => {
       const icon = this.getChannelIcon(ch);
       const programs = window.ivtvEPG.getProgramsInWindow(ch.id, windowStart, windowDurationMinutes, pixelsPerHour);
@@ -1684,6 +1718,7 @@ class UIController {
         : `<span class="epg-channel-icon">${icon}</span>`;
 
       const categoryLabel = ch.isUS ? (ch.subCategory || 'US Network') : `${ch.category}${ch.chNumber ? ` • CH ${ch.chNumber}` : ''}`;
+      const isFav = favIds.includes(ch.id);
 
       return `
         <div class="epg-channel-row" data-channel-id="${ch.id}">
@@ -1695,9 +1730,16 @@ class UIController {
                 <span class="epg-channel-cat">${categoryLabel}</span>
               </div>
             </div>
-            <button class="epg-channel-play-btn" title="Watch ${ch.name} Live" onclick="window.ivtvPlayer.openPlayer('${ch.id}')">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            </button>
+            <div class="epg-channel-actions">
+              <button class="epg-channel-fav-btn ${isFav ? 'is-fav' : ''}" data-channel-id="${ch.id}" title="${isFav ? 'Remove from Favorites' : 'Add to Favorites'}" aria-label="Toggle Favorite">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="${isFav ? '#ffcc00' : 'none'}" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </button>
+              <button class="epg-channel-play-btn" title="Watch ${ch.name} Live" onclick="window.ivtvPlayer.openPlayer('${ch.id}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </button>
+            </div>
           </div>
 
           <div class="epg-programs-track">
@@ -1927,6 +1969,14 @@ class UIController {
     } else {
       this.openTVGuide();
     }
+  }
+
+  filterEPG(category) {
+    this.activeEPGCategory = category;
+    document.querySelectorAll('.epg-filter-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.category === category);
+    });
+    this.renderEPG();
   }
 
   setupEPGClock() {
@@ -2416,11 +2466,53 @@ class UIController {
       }
     });
 
+    // Burger Menu Shortcuts
+    const burgerFavGuideBtn = document.getElementById('burger-fav-guide-btn');
+    if (burgerFavGuideBtn) {
+      burgerFavGuideBtn.addEventListener('click', () => {
+        this.closeBurgerMenu();
+        this.openTVGuide();
+        this.filterEPG('Favorites');
+      });
+    }
+
+    // Interactive Star Favorite toggles inside TV Guide Grid
+    const epgGrid = document.getElementById('epg-grid-layout');
+    if (epgGrid) {
+      epgGrid.addEventListener('click', (e) => {
+        const favBtn = e.target.closest('.epg-channel-fav-btn');
+        if (favBtn) {
+          e.stopPropagation();
+          const chId = favBtn.getAttribute('data-channel-id');
+          if (chId && window.ivtvStorage) {
+            const isNowFav = window.ivtvStorage.toggleFavorite(chId);
+            favBtn.classList.toggle('is-fav', isNowFav);
+            favBtn.title = isNowFav ? 'Remove from Favorites' : 'Add to Favorites';
+            const svg = favBtn.querySelector('svg');
+            if (svg) svg.setAttribute('fill', isNowFav ? '#ffcc00' : 'none');
+            const favCountEl = document.getElementById('epg-fav-count');
+            if (favCountEl) favCountEl.textContent = window.ivtvStorage.getFavorites().length;
+            if (this.activeEPGCategory === 'Favorites') {
+              this.renderEPG();
+            }
+          }
+        }
+      });
+    }
+
     // Listen to storage changes
     window.addEventListener('ivtv:favorites-changed', () => {
       this.renderFavoritesRow();
       this.renderTopRanked();
       const favIds = window.ivtvStorage ? window.ivtvStorage.getFavorites() : [];
+      const favCountEl = document.getElementById('epg-fav-count');
+      if (favCountEl) favCountEl.textContent = favIds.length;
+
+      const guideModal = document.getElementById('tv-guide-modal');
+      if (guideModal && guideModal.classList.contains('active') && this.activeEPGCategory === 'Favorites') {
+        this.renderEPG();
+      }
+
       document.querySelectorAll('.us-tv-card').forEach(card => {
         const id = card.getAttribute('data-channel-id');
         const b = card.querySelector('.us-tv-fav-btn');

@@ -259,6 +259,41 @@
   letter-spacing: 0.04em;
 }
 
+.epg-channel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.epg-channel-fav-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.epg-channel-fav-btn:hover {
+  background: rgba(255, 204, 0, 0.15);
+  border-color: rgba(255, 204, 0, 0.4);
+  color: #ffcc00;
+  transform: scale(1.1);
+}
+
+.epg-channel-fav-btn.is-fav {
+  background: rgba(255, 204, 0, 0.18);
+  border-color: rgba(255, 204, 0, 0.5);
+  color: #ffcc00;
+}
+
 .epg-channel-play-btn {
   background: rgba(0, 240, 118, 0.15);
   border: 1px solid rgba(0, 240, 118, 0.3);
@@ -720,4 +755,13 @@
   background: rgba(0, 240, 118, 0.15);
   border-color: rgba(0, 240, 118, 0.4);
   color: var(--accent-neon, #00ff88);
+}
+
+.epg-empty-favorites {
+  padding: 4.5rem 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  margin: 2rem;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
 }
