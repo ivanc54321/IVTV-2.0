@@ -1,6 +1,6 @@
 {
-  "name": "IVTV — Cinematic UK & Sky TV Player",
-  "short_name": "IVTV",
+  "name": "IVTV 2.0 — Cinematic UK & Sky TV Player",
+  "short_name": "IVTV 2.0",
   "description": "Cinematic UK & Sky TV Player with Live EPG TV Guide, UK Freeview, Favorites Watchlist, and 24/7 HD Streams.",
   "start_url": "/",
   "scope": "/",

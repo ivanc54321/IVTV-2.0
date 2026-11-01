@@ -3,7 +3,7 @@
    Enables 100% Offline Capability, Local Shell Caching & Instant Standalone Launch
    ========================================================================== */
 
-const CACHE_NAME = 'ivtv-cache-v55';
+const CACHE_NAME = 'ivtv-2.0-v64';
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
