@@ -3234,20 +3234,12 @@ class PlayerController {
       return `
         <button type="button" class="surf-channel-item ${isActive ? 'active' : ''}" data-channel-id="${ch.id}" title="${ch.name} — ${progTitle}">
           <div class="surf-card-header">
-            <div class="surf-card-identity">
-              <div class="surf-logo-badge">
-                ${logoHtml}
-              </div>
-              <div class="surf-name-group">
-                <span class="surf-channel-name">${ch.name}</span>
-                <div class="surf-meta-row">
-                  ${ch.chNumber ? `<span class="surf-ch-badge">CH ${ch.chNumber}</span>` : ''}
-                  <span class="surf-cat-tag">${ch.category || 'Live'}</span>
-                </div>
-              </div>
+            <div class="surf-logo-badge" title="${ch.name}">
+              ${logoHtml || `<span class="surf-fallback-text">${ch.name}</span>`}
             </div>
-            <div class="surf-status-tag-wrap">
-              ${isActive ? '<span class="surf-watching-tag"><span class="live-pulse-dot" style="width: 5px; height: 5px;"></span> WATCHING</span>' : '<span class="surf-live-tag">LIVE</span>'}
+            <div class="surf-meta-corner">
+              ${isActive ? '<span class="surf-watching-tag"><span class="live-pulse-dot" style="width: 4px; height: 4px;"></span> NOW</span>' : '<span class="surf-live-tag">LIVE</span>'}
+              ${ch.chNumber ? `<span class="surf-ch-badge">${ch.chNumber}</span>` : ''}
             </div>
           </div>
 
