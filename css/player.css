@@ -1811,7 +1811,6 @@
   overflow-x: auto;
   padding: 0.4rem 2.8rem 0.6rem 2.8rem;
   scrollbar-width: thin;
-  scroll-behavior: smooth;
   cursor: grab;
   width: 100%;
   overscroll-behavior-x: contain;

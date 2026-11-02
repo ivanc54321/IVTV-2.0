@@ -486,56 +486,40 @@ class PlayerController {
       });
     }
 
-    // Dedicated Mouse Wheel Handler on Channel Surf Drawer (Watch Live bottom section)
+    // Dedicated Mouse Wheel Handler on Channel Surf Drawer (Capture Phase for 100% Reliability)
     const surfDrawer = document.getElementById('theater-surf-drawer');
-    const surfList = document.getElementById('theater-surf-list');
-    if (surfDrawer && surfList && !surfDrawer._hasWheelInit) {
+    if (surfDrawer && !surfDrawer._hasWheelInit) {
       surfDrawer._hasWheelInit = true;
       surfDrawer.addEventListener('wheel', (e) => {
-        const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-        if (!delta) return;
+        const surfList = document.getElementById('theater-surf-list');
+        if (!surfList) return;
 
-        // Isolate wheel events within surf drawer so they never change player volume
+        let rawDelta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+        if (!rawDelta) return;
+
+        // Normalize delta across mouse wheel modes (DOM_DELTA_LINE = 1, DOM_DELTA_PAGE = 2)
+        if (e.deltaMode === 1) {
+          rawDelta *= 40;
+        } else if (e.deltaMode === 2) {
+          rawDelta *= 320;
+        }
+
+        // Always isolate wheel events within surf drawer so they never change player volume or page scroll
+        e.preventDefault();
         e.stopPropagation();
 
-        // If cursor is over category pills and pills overflow, scroll pills horizontally
+        // If cursor is directly over category pills and pills overflow, scroll pills horizontally
         const catsEl = document.getElementById('theater-surf-cats');
         if (e.target.closest('#theater-surf-cats') && catsEl && (catsEl.scrollWidth > catsEl.clientWidth + 2)) {
-          const canPillLeft = catsEl.scrollLeft > 1;
-          const canPillRight = catsEl.scrollLeft < (catsEl.scrollWidth - catsEl.clientWidth - 2);
-          if ((delta < 0 && canPillLeft) || (delta > 0 && canPillRight)) {
-            e.preventDefault();
-            catsEl.scrollLeft += delta * 1.1;
-            return;
-          }
+          catsEl.style.scrollBehavior = 'auto';
+          catsEl.scrollLeft += rawDelta * 1.2;
+          return;
         }
 
-        // Target track: channel cards list
-        const maxScroll = Math.max(0, surfList.scrollWidth - surfList.clientWidth);
-        if (maxScroll <= 0) return;
-
-        const canScrollLeft = surfList.scrollLeft > 0.5;
-        const canScrollRight = surfList.scrollLeft < (maxScroll - 0.5);
-
-        if ((delta < 0 && canScrollLeft) || (delta > 0 && canScrollRight)) {
-          e.preventDefault();
-
-          // Temporarily suspend smooth behavior to prevent animation fighting / queuing
-          if (!surfList._isWheelScrolling) {
-            surfList._isWheelScrolling = true;
-            surfList._origScrollBehavior = surfList.style.scrollBehavior;
-            surfList.style.scrollBehavior = 'auto';
-          }
-
-          surfList.scrollLeft = Math.max(0, Math.min(maxScroll, surfList.scrollLeft + delta * 1.25));
-
-          clearTimeout(surfList._wheelTimeout);
-          surfList._wheelTimeout = setTimeout(() => {
-            surfList._isWheelScrolling = false;
-            surfList.style.scrollBehavior = surfList._origScrollBehavior || '';
-          }, 160);
-        }
-      }, { passive: false });
+        // Scroll channel cards list directly with zero animation fighting
+        surfList.style.scrollBehavior = 'auto';
+        surfList.scrollLeft += rawDelta * 1.35;
+      }, { passive: false, capture: true });
     }
 
     // In-Player Pop-from-Left TV Guide Drawer Toggle Button
@@ -872,14 +856,17 @@ class PlayerController {
       this.toggleSideGuide(false);
     }
 
-    // Auto-scroll active channel into center view when opening drawer
+    // Auto-scroll active channel into center view when opening drawer without locking smooth scroll
     if (isVisible) {
-      setTimeout(() => {
+      requestAnimationFrame(() => {
+        const surfList = document.getElementById('theater-surf-list');
         const activeItem = drawer.querySelector('.surf-channel-item.active');
-        if (activeItem) {
-          activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        if (surfList && activeItem) {
+          surfList.style.scrollBehavior = 'auto';
+          const targetLeft = activeItem.offsetLeft - (surfList.clientWidth / 2) + (activeItem.offsetWidth / 2);
+          surfList.scrollLeft = Math.max(0, targetLeft);
         }
-      }, 100);
+      });
     }
   }
 
