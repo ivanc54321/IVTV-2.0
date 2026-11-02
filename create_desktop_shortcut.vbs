@@ -52,6 +52,16 @@ End If
 scMain2.Description = "IVTV 2.0 - Cinematic UK Freeview & Sky TV Player (Standalone Desktop App)"
 scMain2.Save
 
+Set scMain3 = oShell.CreateShortcut(desktopPath & "\IVTV 2.0.lnk")
+scMain3.TargetPath = wscriptExe
+scMain3.Arguments = """" & scriptDir & "\launch.vbs"""
+scMain3.WorkingDirectory = scriptDir
+If fso.FileExists(iconPath) Then
+    scMain3.IconLocation = iconPath & ", 0"
+End If
+scMain3.Description = "IVTV 2.0 - Cinematic UK Freeview & Sky TV Player (Standalone Desktop App)"
+scMain3.Save
+
 ' 3. Create the direct Standalone Batch Launcher on Desktop: "IV - TV (Standalone).bat"
 Dim batContent, batPath
 batPath = desktopPath & "\IV - TV (Standalone).bat"
