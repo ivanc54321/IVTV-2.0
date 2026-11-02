@@ -127,22 +127,22 @@
 }
 
 .theater-modal-container:fullscreen .theater-screen-area {
-  flex: 1 1 auto;
-  width: 100%;
-  height: 100%;
+  flex: 1 1 100%;
+  width: 100vw;
+  height: 100vh;
 }
 
 .theater-modal-container:-webkit-full-screen .theater-screen-area {
-  flex: 1 1 auto;
-  width: 100%;
-  height: 100%;
+  flex: 1 1 100%;
+  width: 100vw;
+  height: 100vh;
 }
 
 .theater-modal-container.is-fullscreen .theater-screen-area,
 .theater-modal-overlay.is-fullscreen .theater-screen-area {
-  flex: 1 1 auto;
-  width: 100%;
-  height: 100%;
+  flex: 1 1 100%;
+  width: 100vw;
+  height: 100vh;
 }
 
 .theater-screen-area:fullscreen {
@@ -155,6 +155,125 @@
   width: 100vw !important;
   height: 100vh !important;
   background: #000000 !important;
+}
+
+/* ==========================================================================
+   PURE SCREEN FULLSCREEN MODE: REMOVE ALL BOTTOM SECTIONS & HEADERS
+   When in Fullscreen, display strictly the edge-to-edge video screen.
+   ========================================================================== */
+.theater-modal-container.is-fullscreen .theater-bottom-overlay,
+.theater-modal-overlay.is-fullscreen .theater-bottom-overlay,
+.theater-modal-container:fullscreen .theater-bottom-overlay,
+.theater-modal-container:-webkit-full-screen .theater-bottom-overlay,
+.theater-modal-overlay:fullscreen .theater-bottom-overlay,
+.theater-modal-overlay:-webkit-full-screen .theater-bottom-overlay,
+.theater-modal-container.is-fullscreen.has-iframe-active .theater-bottom-overlay,
+.theater-modal-overlay.is-fullscreen.has-iframe-active .theater-bottom-overlay,
+.theater-modal-container.is-fullscreen .theater-bottom-overlay:hover,
+.theater-modal-overlay.is-fullscreen .theater-bottom-overlay:hover {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  transform: translateY(200%) !important;
+}
+
+.theater-modal-container.is-fullscreen .theater-header,
+.theater-modal-overlay.is-fullscreen .theater-header,
+.theater-modal-container:fullscreen .theater-header,
+.theater-modal-container:-webkit-full-screen .theater-header,
+.theater-modal-overlay:fullscreen .theater-header,
+.theater-modal-overlay:-webkit-full-screen .theater-header,
+.theater-modal-container.is-fullscreen.has-iframe-active .theater-header,
+.theater-modal-overlay.is-fullscreen.has-iframe-active .theater-header {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  transform: translateY(-200%) !important;
+}
+
+.theater-modal-container.is-fullscreen .theater-screen-area,
+.theater-modal-overlay.is-fullscreen .theater-screen-area,
+.theater-modal-container:fullscreen .theater-screen-area,
+.theater-modal-container:-webkit-full-screen .theater-screen-area {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: #000000 !important;
+}
+
+.theater-modal-container.is-fullscreen .theater-video,
+.theater-modal-overlay.is-fullscreen .theater-video,
+.theater-modal-container.is-fullscreen .theater-iframe,
+.theater-modal-overlay.is-fullscreen .theater-iframe {
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* Floating Minimal Exit Fullscreen Pill (Fades in top-right on cursor move, auto-hides when idle) */
+.theater-fullscreen-exit-pill {
+  display: none;
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  z-index: 999999;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.95rem;
+  background: rgba(10, 14, 12, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  color: #ffffff;
+  font-family: var(--font-main);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s, border-color 0.2s;
+  pointer-events: none;
+  user-select: none;
+}
+
+.theater-fullscreen-exit-pill:hover {
+  background: rgba(20, 28, 24, 0.95);
+  border-color: var(--accent-emerald);
+  color: var(--accent-emerald);
+}
+
+.theater-modal-container.is-fullscreen .theater-fullscreen-exit-pill,
+.theater-modal-overlay.is-fullscreen .theater-fullscreen-exit-pill,
+.theater-modal-container:fullscreen .theater-fullscreen-exit-pill,
+.theater-modal-container:-webkit-full-screen .theater-fullscreen-exit-pill {
+  display: inline-flex;
+}
+
+.theater-modal-container.is-fullscreen:not(.controls-hidden) .theater-fullscreen-exit-pill,
+.theater-modal-overlay.is-fullscreen:not(.controls-hidden) .theater-fullscreen-exit-pill {
+  opacity: 0.88;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.theater-modal-container.is-fullscreen.controls-hidden .theater-fullscreen-exit-pill,
+.theater-modal-overlay.is-fullscreen.controls-hidden .theater-fullscreen-exit-pill {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
 }
 
 /* ==========================================================================
@@ -894,8 +1013,11 @@
   pointer-events: auto !important;
 }
 
-.theater-modal-container.controls-hidden:not(.has-iframe-active).is-fullscreen {
-  cursor: none;
+.theater-modal-container.controls-hidden.is-fullscreen,
+.theater-modal-container.controls-hidden.is-fullscreen video,
+.theater-modal-container.controls-hidden.is-fullscreen iframe,
+.theater-modal-container.controls-hidden.is-fullscreen .theater-screen-area {
+  cursor: none !important;
 }
 
 /* Guarantee controls stay visible during iframe / mirror playback */

@@ -267,6 +267,15 @@ class PlayerController {
       fsBtn.addEventListener('click', () => this.toggleFullscreen());
     }
 
+    // Floating exit fullscreen pill (edge-to-edge pure screen mode)
+    const fsExitPill = document.getElementById('theater-fullscreen-exit-pill');
+    if (fsExitPill) {
+      fsExitPill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleFullscreen();
+      });
+    }
+
     // Pop-out Menu Dropdown Trigger & Outside Click
     const popmenuWrapper = document.getElementById('theater-popmenu-wrapper');
     const popmenuTrigger = document.getElementById('theater-popmenu-trigger');
@@ -2646,6 +2655,13 @@ class PlayerController {
     if (this.modal) {
       this.modal.classList.toggle('is-fullscreen', isFs);
       this.modal.classList.toggle('cinema-wide', isFs);
+    }
+
+    if (isFs) {
+      this.isHoveringBottomSection = false;
+      if (typeof this.resetControlsTimer === 'function') {
+        this.resetControlsTimer(2500);
+      }
     }
 
     // 1. Update Bottom Action Bar Fullscreen Button (#theater-fs-btn)

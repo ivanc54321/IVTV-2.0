@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="css/fonts.css?v=40">
   <link rel="stylesheet" href="css/main.css?v=66">
   <link rel="stylesheet" href="css/components.css?v=48">
-  <link rel="stylesheet" href="css/player.css?v=70">
+  <link rel="stylesheet" href="css/player.css?v=71">
   <link rel="stylesheet" href="css/epg.css?v=64">
 
   <!-- HLS.js for Pure Ad-Free Live Stream Playback (Local Zero-Latency with CDN Fallback) -->
@@ -733,6 +733,14 @@
           <span id="theater-volume-hud-text">85%</span>
         </div>
 
+        <!-- Floating Minimal Exit Fullscreen Pill (Edge-to-edge pure fullscreen mode) -->
+        <button class="theater-fullscreen-exit-pill" id="theater-fullscreen-exit-pill" title="Exit Fullscreen (Esc, F, or Double-Click)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+          </svg>
+          <span>Exit Fullscreen</span>
+        </button>
+
         <video id="theater-video" class="theater-video aspect-stretch" autoplay playsinline></video>
         <iframe 
           id="theater-youtube-iframe" 
@@ -1331,7 +1339,7 @@
   <script src="js/auth.js?v=2"></script>
   <script src="js/favorites.js?v=42"></script>
   <script src="js/epg.js?v=43"></script>
-  <script src="js/player.js?v=68"></script>
+  <script src="js/player.js?v=69"></script>
   <script src="js/us-channels.js?v=8"></script>
   <script src="js/ui.js?v=81"></script>
   <script src="js/app.js?v=91"></script>
