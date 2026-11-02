@@ -87,6 +87,17 @@ class PlayerController {
       });
     }
 
+    // Click screen area to dismiss Quick Surf if open
+    if (this.screenArea) {
+      this.screenArea.addEventListener('click', (e) => {
+        if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
+        const surfDrawer = document.getElementById('theater-surf-drawer');
+        if (surfDrawer && !surfDrawer.classList.contains('collapsed')) {
+          this.toggleSurfDrawer(false);
+        }
+      });
+    }
+
     // Double-click screen area to toggle fullscreen
     if (this.screenArea) {
       this.screenArea.addEventListener('dblclick', (e) => {
@@ -458,7 +469,7 @@ class PlayerController {
         e.stopPropagation();
         const list = document.getElementById('theater-surf-list');
         if (list) {
-          list.scrollBy({ left: -360, behavior: 'smooth' });
+          list.scrollBy({ left: -480, behavior: 'smooth' });
         }
       });
     }
@@ -470,7 +481,7 @@ class PlayerController {
         e.stopPropagation();
         const list = document.getElementById('theater-surf-list');
         if (list) {
-          list.scrollBy({ left: 360, behavior: 'smooth' });
+          list.scrollBy({ left: 480, behavior: 'smooth' });
         }
       });
     }
@@ -627,8 +638,10 @@ class PlayerController {
         const popmenu = document.getElementById('theater-popmenu-wrapper');
         const isPopmenuOpen = popmenu && popmenu.classList.contains('open');
         const isSideGuideOpen = this.isSideGuideOpen;
+        const surfDrawer = document.getElementById('theater-surf-drawer');
+        const isSurfOpen = surfDrawer && !surfDrawer.classList.contains('collapsed');
 
-        if (isSearchFocused || isPopmenuOpen || isSideGuideOpen) {
+        if (isSearchFocused || isPopmenuOpen || isSideGuideOpen || isSurfOpen) {
           return;
         }
 
@@ -710,6 +723,11 @@ class PlayerController {
         resetControlsTimer(3000);
       }
       if (e.key === 'Escape' && this.isOpen) {
+        const surfDrawer = document.getElementById('theater-surf-drawer');
+        if (surfDrawer && !surfDrawer.classList.contains('collapsed')) {
+          this.toggleSurfDrawer(false);
+          return;
+        }
         if (this.isProgramDescOpen) {
           this.toggleProgramDesc(false);
           return;
@@ -848,7 +866,11 @@ class PlayerController {
 
     const isVisible = !drawer.classList.contains('collapsed');
     if (toggleBtn) toggleBtn.classList.toggle('active', isVisible);
-    if (closeBtn) closeBtn.textContent = isVisible ? 'Hide ▲' : 'Show ▼';
+
+    // If opening Quick Surf, close Side Guide to prevent overlap
+    if (isVisible && this.isSideGuideOpen) {
+      this.toggleSideGuide(false);
+    }
 
     // Auto-scroll active channel into center view when opening drawer
     if (isVisible) {
@@ -3167,9 +3189,14 @@ class PlayerController {
       return (b.viewsNum || 0) - (a.viewsNum || 0);
     });
 
+    const headerCount = document.getElementById('theater-surf-header-count');
+    if (headerCount) {
+      headerCount.textContent = `${sorted.length} Channels`;
+    }
+
     if (sorted.length === 0) {
       surfTrack.innerHTML = `
-        <div style="padding: 0.8rem 1rem; color: var(--text-muted); font-size: 0.75rem;">
+        <div style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.78rem;">
           No channels found matching "${this.surfQuery || this.surfCategory}"
         </div>
       `;
@@ -3208,13 +3235,20 @@ class PlayerController {
         <button type="button" class="surf-channel-item ${isActive ? 'active' : ''}" data-channel-id="${ch.id}" title="${ch.name} — ${progTitle}">
           <div class="surf-card-header">
             <div class="surf-card-identity">
-              ${logoHtml}
-              <span class="surf-channel-name">
-                ${ch.name}
-                ${ch.chNumber ? `<span class="surf-ch-badge">${ch.chNumber}</span>` : ''}
-              </span>
+              <div class="surf-logo-badge">
+                ${logoHtml}
+              </div>
+              <div class="surf-name-group">
+                <span class="surf-channel-name">${ch.name}</span>
+                <div class="surf-meta-row">
+                  ${ch.chNumber ? `<span class="surf-ch-badge">CH ${ch.chNumber}</span>` : ''}
+                  <span class="surf-cat-tag">${ch.category || 'Live'}</span>
+                </div>
+              </div>
             </div>
-            ${isActive ? '<span class="surf-watching-tag">PLAYING</span>' : '<span class="surf-live-tag">LIVE</span>'}
+            <div class="surf-status-tag-wrap">
+              ${isActive ? '<span class="surf-watching-tag"><span class="live-pulse-dot" style="width: 5px; height: 5px;"></span> WATCHING</span>' : '<span class="surf-live-tag">LIVE</span>'}
+            </div>
           </div>
 
           <div class="surf-card-whats-on">
@@ -3222,12 +3256,12 @@ class PlayerController {
               <span class="surf-now-tag">NOW</span>
               <span class="surf-prog-title" title="${progTitle}">${progTitle}</span>
             </div>
+            <div class="surf-prog-progress">
+              <div class="surf-prog-progress-fill" style="width: ${progressPercent}%;"></div>
+            </div>
             <div class="surf-prog-footer">
               <span class="surf-prog-time">${progTime}</span>
               ${minsLeft ? `<span class="surf-prog-mins">${minsLeft}</span>` : ''}
-            </div>
-            <div class="surf-prog-progress">
-              <div class="surf-prog-progress-fill" style="width: ${progressPercent}%;"></div>
             </div>
           </div>
         </button>

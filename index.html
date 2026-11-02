@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="css/fonts.css?v=40">
   <link rel="stylesheet" href="css/main.css?v=66">
   <link rel="stylesheet" href="css/components.css?v=48">
-  <link rel="stylesheet" href="css/player.css?v=71">
+  <link rel="stylesheet" href="css/player.css?v=72">
   <link rel="stylesheet" href="css/epg.css?v=64">
 
   <!-- HLS.js for Pure Ad-Free Live Stream Playback (Local Zero-Latency with CDN Fallback) -->
@@ -1003,40 +1003,50 @@
             </button>
           </div>
         </div>
+      </div>
 
-        <!-- In-Player Channel Surfing Drawer (Quick Channel Surf Carousel) -->
-        <div class="theater-channel-surf-section" id="theater-surf-drawer">
-          <div class="surf-header">
-            <div class="surf-header-left">
+      <!-- In-Player Channel Surfing Overlay (Quick Channel Surf Cards Pop-Up Overlay) -->
+      <div class="theater-channel-surf-section collapsed" id="theater-surf-drawer" aria-label="Quick Channel Surf">
+        <div class="surf-header">
+          <div class="surf-header-left">
+            <div class="surf-title-wrap">
+              <span class="live-pulse-dot" style="width: 7px; height: 7px;"></span>
               <span class="surf-title">Quick Channel Surf</span>
-              <div class="surf-category-pills" id="theater-surf-cats">
-                <button class="surf-cat-pill active" data-category="all">All</button>
-                <button class="surf-cat-pill" data-category="most-viewed">🔥 Most Viewed</button>
-                <button class="surf-cat-pill" data-category="freeview">🇬🇧 Freeview</button>
-                <button class="surf-cat-pill" data-category="sky">☁ Sky</button>
-                <button class="surf-cat-pill" data-category="Cinema">Cinema</button>
-                <button class="surf-cat-pill" data-category="Entertainment">Entertainment</button>
-                <button class="surf-cat-pill" data-category="News">News</button>
-                <button class="surf-cat-pill" data-category="Favorites">★ Favorites</button>
-                <button class="surf-cat-pill" data-category="US TV">🇺🇸 US TV</button>
-                <button class="surf-cat-pill" data-category="Sports">🏆 Sports</button>
-              </div>
+              <span class="surf-badge-count" id="theater-surf-header-count">70 Channels</span>
             </div>
-            <div class="surf-header-right">
-              <div class="surf-search-wrap">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="theater-surf-search" class="surf-search-input" placeholder="Search channels..." autocomplete="off">
-              </div>
-              <button class="theater-action-btn" id="theater-surf-close-btn" style="padding: 0.2rem 0.55rem; font-size: 0.72rem;">Hide ▲</button>
+            <div class="surf-category-pills" id="theater-surf-cats">
+              <button class="surf-cat-pill active" data-category="all">All</button>
+              <button class="surf-cat-pill" data-category="most-viewed">🔥 Most Viewed</button>
+              <button class="surf-cat-pill" data-category="freeview">🇬🇧 Freeview</button>
+              <button class="surf-cat-pill" data-category="sky">☁ Sky</button>
+              <button class="surf-cat-pill" data-category="Cinema">Cinema</button>
+              <button class="surf-cat-pill" data-category="Entertainment">Entertainment</button>
+              <button class="surf-cat-pill" data-category="News">News</button>
+              <button class="surf-cat-pill" data-category="Favorites">★ Favorites</button>
+              <button class="surf-cat-pill" data-category="US TV">🇺🇸 US TV</button>
+              <button class="surf-cat-pill" data-category="Sports">🏆 Sports</button>
             </div>
           </div>
-          <div class="surf-carousel-wrapper">
-            <button class="surf-nav-btn prev" id="theater-surf-prev-btn" title="Scroll Left (‹)">‹</button>
-            <div class="surf-channel-list" id="theater-surf-list">
-              <!-- Populated dynamically via player.js -->
+          <div class="surf-header-right">
+            <div class="surf-search-wrap">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="theater-surf-search" class="surf-search-input" placeholder="Search channels..." autocomplete="off">
             </div>
-            <button class="surf-nav-btn next" id="theater-surf-next-btn" title="Scroll Right (›)">›</button>
+            <button class="surf-close-btn" id="theater-surf-close-btn" title="Close Quick Surf (Esc or C)" aria-label="Close Quick Surf">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span>Close</span>
+            </button>
           </div>
+        </div>
+        <div class="surf-carousel-wrapper">
+          <button class="surf-nav-btn prev" id="theater-surf-prev-btn" title="Scroll Left (‹)" aria-label="Scroll Left">‹</button>
+          <div class="surf-channel-list" id="theater-surf-list">
+            <!-- Populated dynamically via player.js -->
+          </div>
+          <button class="surf-nav-btn next" id="theater-surf-next-btn" title="Scroll Right (›)" aria-label="Scroll Right">›</button>
         </div>
       </div>
 
@@ -1339,7 +1349,7 @@
   <script src="js/auth.js?v=2"></script>
   <script src="js/favorites.js?v=42"></script>
   <script src="js/epg.js?v=43"></script>
-  <script src="js/player.js?v=69"></script>
+  <script src="js/player.js?v=70"></script>
   <script src="js/us-channels.js?v=8"></script>
   <script src="js/ui.js?v=81"></script>
   <script src="js/app.js?v=91"></script>
