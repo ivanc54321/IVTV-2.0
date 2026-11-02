@@ -3244,6 +3244,7 @@ class PlayerController {
           </div>
 
           <div class="surf-card-whats-on">
+            <div class="surf-channel-name">${ch.name}</div>
             <div class="surf-prog-row">
               <span class="surf-now-tag">NOW</span>
               <span class="surf-prog-title" title="${progTitle}">${progTitle}</span>
